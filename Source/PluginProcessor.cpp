@@ -166,7 +166,8 @@ bool PurristAudioProcessor::hasEditor() const
 
 juce::AudioProcessorEditor* PurristAudioProcessor::createEditor()
 {
-    return new PurristAudioProcessorEditor (*this);
+//    return new PurristAudioProcessorEditor (*this);
+    return new juce::GenericAudioProcessorEditor(*this);
 }
 
 //==============================================================================
@@ -181,6 +182,80 @@ void PurristAudioProcessor::setStateInformation (const void* data, int sizeInByt
 {
     // You should use this method to restore your parameters from this memory block,
     // whose contents will have been created by the getStateInformation() call.
+}
+
+juce::AudioProcessorValueTreeState::ParameterLayout PurristAudioProcessor::createParameterLayout()
+{
+    juce::AudioProcessorValueTreeState::ParameterLayout layout;
+    
+    layout.add(
+        std::make_unique<juce::AudioParameterFloat>(
+            juce::ParameterID("buzz_threshold", 1),
+            "Threshold",
+            juce::NormalisableRange<float>(-120.f, 12.f, 0.5f, 1.f),
+            -78.f
+        )
+    );
+    
+    layout.add(
+        std::make_unique<juce::AudioParameterFloat>(
+            juce::ParameterID("buzz_ratio", 1),
+            "Ratio",
+            juce::NormalisableRange<float>(0.f, .995f, 0.005f, 2.f),
+            -78.f
+        )
+    );
+    
+    juce::StringArray buzzFreqOptions;
+    buzzFreqOptions.add("50Hz");
+    buzzFreqOptions.add("60Hz");
+    
+    layout.add(
+        std::make_unique<juce::AudioParameterChoice>(
+            juce::ParameterID("buzz_frequency", 1),
+            "AC Frequency",
+            buzzFreqOptions,
+            0
+        )
+    );
+    
+    layout.add(
+        std::make_unique<juce::AudioParameterFloat>(
+            juce::ParameterID("hiss_threshold", 1),
+            "Threshold",
+            juce::NormalisableRange<float>(-120.f, 12.f, 0.5f, 1.f),
+            -78.f
+        )
+    );
+    
+    layout.add(
+        std::make_unique<juce::AudioParameterFloat>(
+            juce::ParameterID("hiss_ratio", 1),
+            "Ratio",
+            juce::NormalisableRange<float>(0.f, .995f, 0.005f, 2.f),
+            -78.f
+        )
+    );
+    
+    layout.add(
+        std::make_unique<juce::AudioParameterFloat>(
+            juce::ParameterID("noise_threshold", 1),
+            "Threshold",
+            juce::NormalisableRange<float>(-120.f, 12.f, 0.5f, 1.f),
+            -78.f
+        )
+    );
+    
+    layout.add(
+        std::make_unique<juce::AudioParameterFloat>(
+            juce::ParameterID("noise_ratio", 1),
+            "Ratio",
+            juce::NormalisableRange<float>(0.f, .995f, 0.005f, 2.f),
+            -78.f
+        )
+    );
+    
+    return layout;
 }
 
 //==============================================================================
