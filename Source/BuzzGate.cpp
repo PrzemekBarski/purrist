@@ -77,12 +77,29 @@ void BuzzGate<SampleType>::prepare (const juce::dsp::ProcessSpec& spec)
     RMSFilter.prepare (spec);
     envelopeFilter.prepare (spec);
     
-    int buzzFilterFreq = 50;
-    for (int i = 0; i < 40; i++) {
-        for (int j = 0; j < 2; j++) {
-            *buzzFilter[j][i].coefficients = juce::dsp::IIR::ArrayCoefficients<float>::makePeakFilter(sampleRate, (float)buzzFilterFreq, 1000, 1);
-            buzzFilter[j][i].prepare (spec);
-            buzzFilterFreq += 50;
+    int buzzFilterFreq = 50, frequency = 0;
+    float filterGains[2][5];
+    float attenuation[2] = {512.f, 128.f};
+    
+    for (int odd = 0; odd < 2; odd++) {
+        for (int gain = 0; gain < 5; gain++) {
+            filterGains[odd][gain] = 1.f / attenuation[odd];
+            attenuation[odd] /= 2.f;
+        }
+    }
+    
+    float gain = 1;
+
+    for (int overtone = 0; overtone < 30; overtone++) {
+        for (int odd = 0; odd < 2; odd++) {
+            frequency += buzzFilterFreq;
+            for (int channel = 0; channel < 2; channel++) {
+                if (overtone < 5) {
+                    gain = filterGains[odd][overtone];
+                }
+                *buzzFilter[channel][odd][overtone].coefficients = juce::dsp::IIR::ArrayCoefficients<float>::makePeakFilter(sampleRate, (float)frequency, 1000, gain);
+                buzzFilter[channel][odd][overtone].prepare (spec);
+            }
         }
     }
 
@@ -95,9 +112,11 @@ void BuzzGate<SampleType>::reset()
 {
     RMSFilter.reset();
     envelopeFilter.reset();
-    for (int i = 0; i < 40; i++) {
-        for (int j = 0; j < 2; j++) {
-            buzzFilter[j][i].reset();
+    for (int overtone = 0; overtone < 30; overtone++) {
+        for (int channel = 0; channel < 2; channel++) {
+            for (int odd = 0; odd < 2; odd++) {
+                buzzFilter[channel][odd][overtone].reset();
+            }
         }
     }
 }
@@ -117,25 +136,16 @@ SampleType BuzzGate<SampleType>::processSample (int channel, SampleType sample)
     auto gain = (env > threshold) ? static_cast<SampleType> (1.0)
                                   : std::pow (env * thresholdInverse, currentRatio - static_cast<SampleType> (1.0));
     
-    SampleType ratioMultiplier = 2;
-    int buzzFilterFreq = 50;
-    for (int i = 0; i < 40; i++) {
-        auto filterGain = gain;
-        if (ratioMultiplier >= 1.25) {
-            SampleType modifiedRatio = ratioMultiplier * currentRatio;
-            filterGain = (env > threshold) ? static_cast<SampleType> (1.0)
-                                          : std::pow (env * thresholdInverse, modifiedRatio - static_cast<SampleType> (1.0));
-            ratioMultiplier -= static_cast<SampleType> (0.25);
+    for (int overtone = 0; overtone < 30; overtone++) {
+        for (int channel = 0; channel < 2; channel++) {
+            for (int odd = 0; odd < 2; odd++) {
+                modifiedSample = buzzFilter[channel][odd][overtone].processSample(modifiedSample);
+            }
         }
-        
-        filterGain = filterGain ? filterGain : 0.001f;
-        *buzzFilter[channel][i].coefficients = juce::dsp::IIR::ArrayCoefficients<float>::makePeakFilter(sampleRate, (float)buzzFilterFreq, 10000, filterGain);
-        modifiedSample = buzzFilter[channel][i].processSample(modifiedSample);
-        buzzFilterFreq += 50;
     }
-
+    
     // Output
-    return modifiedSample;
+    return sample * gain + modifiedSample * (1 - gain);
 }
 
 template <typename SampleType>
