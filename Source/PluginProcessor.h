@@ -9,6 +9,7 @@
 #pragma once
 
 #include <JuceHeader.h>
+#include "BuzzGate.h"
 
 //==============================================================================
 /**
@@ -57,6 +58,8 @@ public:
     juce::AudioProcessorValueTreeState apvts{*this, nullptr, "Parameters", createParameterLayout()};
 
 private:
+    using MonoChain = juce::dsp::ProcessorChain<BuzzGate<float>>;
+    MonoChain leftChain, rightChain;
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PurristAudioProcessor)
 };

@@ -6,6 +6,10 @@
               pluginVST3Category="Dynamics">
   <MAINGROUP id="bOXJYb" name="Purrist">
     <GROUP id="{293F73BD-1395-62FC-5B75-361BD08808B2}" name="Source">
+      <GROUP id="{4B038A85-B6BB-BFAB-7764-12CC874091E9}" name="modules">
+        <FILE id="qbQDAz" name="BuzzGate.cpp" compile="1" resource="0" file="Source/BuzzGate.cpp"/>
+        <FILE id="e2aYVv" name="BuzzGate.h" compile="0" resource="0" file="Source/BuzzGate.h"/>
+      </GROUP>
       <FILE id="N6MgVn" name="PluginProcessor.cpp" compile="1" resource="0"
             file="Source/PluginProcessor.cpp"/>
       <FILE id="Br1YQs" name="PluginProcessor.h" compile="0" resource="0"
