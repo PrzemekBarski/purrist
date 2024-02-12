@@ -9,6 +9,8 @@
       <GROUP id="{4B038A85-B6BB-BFAB-7764-12CC874091E9}" name="modules">
         <FILE id="qbQDAz" name="BuzzGate.cpp" compile="1" resource="0" file="Source/BuzzGate.cpp"/>
         <FILE id="e2aYVv" name="BuzzGate.h" compile="0" resource="0" file="Source/BuzzGate.h"/>
+        <FILE id="osIc0x" name="HissGate.cpp" compile="1" resource="0" file="Source/HissGate.cpp"/>
+        <FILE id="xwHTQl" name="HissGate.h" compile="0" resource="0" file="Source/HissGate.h"/>
       </GROUP>
       <FILE id="N6MgVn" name="PluginProcessor.cpp" compile="1" resource="0"
             file="Source/PluginProcessor.cpp"/>

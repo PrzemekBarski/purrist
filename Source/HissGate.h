@@ -1,8 +1,8 @@
 /*
   ==============================================================================
 
-    BuzzGate.h
-    Created: 3 Feb 2024 11:42:29pm
+    HissGate.h
+    Created: 12 Feb 2024 5:14:06pm
     Author:  Przemysław Barski
 
   ==============================================================================
@@ -16,10 +16,10 @@
 /*
 */
 template <typename SampleType>
-class BuzzGate
+class HissGate
 {
 public:
-    BuzzGate();
+    HissGate();
 //    ~BuzzGate() override;
     
     //==============================================================================
@@ -35,8 +35,7 @@ public:
     /** Sets the release time in milliseconds of the noise-gate.*/
     void setRelease (SampleType newRelease);
     
-    /** Sets the frequency ID (0 = 50 Hz, 1 = 60 Hz) of the noise gate.*/
-    void setFrequencyID (int newFrequencyID);
+    void setCutoff (float newCutoff);
 
     //==============================================================================
     /** Initialises the processor. */
@@ -84,13 +83,11 @@ private:
     //==============================================================================
     SampleType threshold, thresholdInverse, currentRatio;
     juce::dsp::BallisticsFilter<SampleType> envelopeFilter, RMSFilter;
-    int frequencyID;
 
     double sampleRate = 44100.0;
-    SampleType thresholddB = -100, ratio = 10.0, attackTime = 1.0, releaseTime = 100.0, delaySampleDivider = 100;
+    SampleType thresholddB = -100, ratio = 10.0, attackTime = 1.0, releaseTime = 100.0, frequency = 2000.f;
     
-    juce::dsp::DelayLine<float> delayLine;
-    juce::dsp::IIR::Filter<float> buzzFilter[2][6];
+    juce::dsp::IIR::Filter<float> hissFilter[2];
     
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (BuzzGate)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (HissGate)
 };

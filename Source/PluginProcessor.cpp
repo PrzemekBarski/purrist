@@ -91,6 +91,26 @@ void PurristAudioProcessor::changeProgramName (int index, const juce::String& ne
 }
 
 //==============================================================================
+
+void PurristAudioProcessor::updateParameters ()
+{
+    auto chainSettings = getChainSettings(apvts);
+    
+    for (int channel = 0; channel < 2; channel++) {
+        chain[channel].get<ChainPositions::BuzzGate>().setThreshold(chainSettings.buzzThreshold);
+        chain[channel].get<ChainPositions::BuzzGate>().setRatio(chainSettings.buzzRatio);
+        chain[channel].get<ChainPositions::BuzzGate>().setFrequencyID(chainSettings.buzzFrequency);
+        
+        chain[channel].get<ChainPositions::HissGate>().setThreshold(chainSettings.hissThreshold);
+        chain[channel].get<ChainPositions::HissGate>().setRatio(chainSettings.hissRatio);
+        chain[channel].get<ChainPositions::HissGate>().setCutoff(chainSettings.hissCutoff);
+        
+        chain[channel].get<ChainPositions::NoiseGate>().setThreshold(chainSettings.noiseThreshold);
+        chain[channel].get<ChainPositions::NoiseGate>().setRatio(chainSettings.noiseRatio);
+        chain[channel].get<ChainPositions::NoiseGate>().setRelease(chainSettings.noiseRelease);
+    }
+}
+
 void PurristAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
     juce::dsp::ProcessSpec spec;
@@ -99,18 +119,21 @@ void PurristAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBloc
     spec.numChannels = 1;
     spec.sampleRate = sampleRate;
     
-    leftChain.get<0>().setThreshold(-24.f);
-    leftChain.get<0>().setRatio(4.f);
-    leftChain.get<0>().setAttack(5);
-    leftChain.get<0>().setRelease(5);
+    updateParameters();
     
-    rightChain.get<0>().setThreshold(-24.f);
-    rightChain.get<0>().setRatio(4.f);
-    rightChain.get<0>().setAttack(5);
-    rightChain.get<0>().setRelease(5);
+    auto chainSettings = getChainSettings(apvts);
     
-    leftChain.prepare(spec);
-    rightChain.prepare(spec);
+    for (int channel = 0; channel < 2; channel++) {
+        chain[channel].get<ChainPositions::BuzzGate>().setAttack(5);
+        chain[channel].get<ChainPositions::BuzzGate>().setRelease(20);
+        
+        chain[channel].get<ChainPositions::HissGate>().setAttack(5);
+        chain[channel].get<ChainPositions::HissGate>().setRelease(20);
+        
+        chain[channel].get<ChainPositions::NoiseGate>().setAttack(5);
+        
+        chain[channel].prepare(spec);
+    }
 }
 
 void PurristAudioProcessor::releaseResources()
@@ -159,6 +182,10 @@ void PurristAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce
     // this code if your algorithm always overwrites all the output channels.
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
+    
+    auto chainSettings = getChainSettings(apvts);
+    
+    updateParameters();
 
     juce::dsp::AudioBlock<float> block(buffer);
     
@@ -168,8 +195,8 @@ void PurristAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce
     juce::dsp::ProcessContextReplacing<float> leftContext(leftBlock);
     juce::dsp::ProcessContextReplacing<float> rightContext(rightBlock);
     
-    leftChain.process(leftContext);
-    rightChain.process(rightContext);
+    chain[0].process(leftContext);
+    chain[1].process(rightContext);
     
 }
 
@@ -199,6 +226,25 @@ void PurristAudioProcessor::setStateInformation (const void* data, int sizeInByt
     // whose contents will have been created by the getStateInformation() call.
 }
 
+ChainSettings getChainSettings(juce::AudioProcessorValueTreeState& apvts)
+{
+    ChainSettings settings;
+    
+    settings.buzzThreshold = apvts.getRawParameterValue("buzz_threshold")->load();
+    settings.buzzRatio = apvts.getRawParameterValue("buzz_ratio")->load();
+    settings.buzzFrequency = apvts.getRawParameterValue("buzz_frequency")->load();
+    
+    settings.hissThreshold = apvts.getRawParameterValue("hiss_threshold")->load();
+    settings.hissRatio = apvts.getRawParameterValue("hiss_ratio")->load();
+    settings.hissCutoff = apvts.getRawParameterValue("hiss_cutoff")->load();
+    
+    settings.noiseThreshold = apvts.getRawParameterValue("noise_threshold")->load();
+    settings.noiseRatio = apvts.getRawParameterValue("noise_ratio")->load();
+    settings.noiseRelease = apvts.getRawParameterValue("noise_release")->load();
+    
+    return settings ;
+}
+
 juce::AudioProcessorValueTreeState::ParameterLayout PurristAudioProcessor::createParameterLayout()
 {
     juce::AudioProcessorValueTreeState::ParameterLayout layout;
@@ -208,7 +254,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout PurristAudioProcessor::creat
             juce::ParameterID("buzz_threshold", 1),
             "Threshold",
             juce::NormalisableRange<float>(-120.f, 12.f, 0.5f, 1.f),
-            -78.f
+            -42.f
         )
     );
     
@@ -216,8 +262,8 @@ juce::AudioProcessorValueTreeState::ParameterLayout PurristAudioProcessor::creat
         std::make_unique<juce::AudioParameterFloat>(
             juce::ParameterID("buzz_ratio", 1),
             "Ratio",
-            juce::NormalisableRange<float>(0.f, .995f, 0.005f, 2.f),
-            -78.f
+            juce::NormalisableRange<float>(2.f, 8.f, 0.01f, 0.55f),
+            4.f
         )
     );
     
@@ -239,7 +285,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout PurristAudioProcessor::creat
             juce::ParameterID("hiss_threshold", 1),
             "Threshold",
             juce::NormalisableRange<float>(-120.f, 12.f, 0.5f, 1.f),
-            -78.f
+            -48.f
         )
     );
     
@@ -247,8 +293,17 @@ juce::AudioProcessorValueTreeState::ParameterLayout PurristAudioProcessor::creat
         std::make_unique<juce::AudioParameterFloat>(
             juce::ParameterID("hiss_ratio", 1),
             "Ratio",
-            juce::NormalisableRange<float>(0.f, .995f, 0.005f, 2.f),
-            -78.f
+            juce::NormalisableRange<float>(2.f, 8.f, 0.01f, 0.55f),
+            4.f
+        )
+    );
+    
+    layout.add(
+        std::make_unique<juce::AudioParameterFloat>(
+            juce::ParameterID("hiss_cutoff", 1),
+            "Cutoff",
+            juce::NormalisableRange<float>(1000.f, 4000.f, 0.5f, 0.55f),
+            2000.f
         )
     );
     
@@ -257,7 +312,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout PurristAudioProcessor::creat
             juce::ParameterID("noise_threshold", 1),
             "Threshold",
             juce::NormalisableRange<float>(-120.f, 12.f, 0.5f, 1.f),
-            -78.f
+            -54.f
         )
     );
     
@@ -265,8 +320,17 @@ juce::AudioProcessorValueTreeState::ParameterLayout PurristAudioProcessor::creat
         std::make_unique<juce::AudioParameterFloat>(
             juce::ParameterID("noise_ratio", 1),
             "Ratio",
-            juce::NormalisableRange<float>(0.f, .995f, 0.005f, 2.f),
-            -78.f
+            juce::NormalisableRange<float>(2.f, 8.f, 0.01f, 0.55f),
+            4.f
+        )
+    );
+    
+    layout.add(
+        std::make_unique<juce::AudioParameterFloat>(
+            juce::ParameterID("noise_release", 1),
+            "Release",
+            juce::NormalisableRange<float>(0.f, 1000.f, 1.f, 0.5f),
+            200.f
         )
     );
     

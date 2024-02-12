@@ -65,6 +65,13 @@ void BuzzGate<SampleType>::setRelease (SampleType newRelease)
     update();
 }
 
+template <typename SampleType>
+void BuzzGate<SampleType>::setFrequencyID (int newFrequencyID)
+{
+    frequencyID = newFrequencyID;   // 0 = 50 Hz, 1 = 60 Hz
+    update();
+}
+
 //==============================================================================
 template <typename SampleType>
 void BuzzGate<SampleType>::prepare (const juce::dsp::ProcessSpec& spec)
@@ -77,11 +84,15 @@ void BuzzGate<SampleType>::prepare (const juce::dsp::ProcessSpec& spec)
     RMSFilter.prepare (spec);
     envelopeFilter.prepare (spec);
     
+    delayLine.prepare(spec);
+    delayLine.setMaximumDelayInSamples(sampleRate * 0.01);
+    delayLine.setDelay(sampleRate / delaySampleDivider);
+    
     int buzzFilterFreq = 50;
-    for (int i = 0; i < 40; i++) {
-        for (int j = 0; j < 2; j++) {
-            *buzzFilter[j][i].coefficients = juce::dsp::IIR::ArrayCoefficients<float>::makePeakFilter(sampleRate, (float)buzzFilterFreq, 1000, 1);
-            buzzFilter[j][i].prepare (spec);
+    for (int channel = 0; channel < 2 && channel; channel++) {
+        for (int instance = 0; instance < 6; instance++) {
+            *buzzFilter[channel][instance].coefficients = juce::dsp::IIR::ArrayCoefficients<float>::makePeakFilter(sampleRate, (float)buzzFilterFreq, 1000, 1);
+            buzzFilter[channel][instance].prepare (spec);
             buzzFilterFreq += 50;
         }
     }
@@ -95,9 +106,10 @@ void BuzzGate<SampleType>::reset()
 {
     RMSFilter.reset();
     envelopeFilter.reset();
-    for (int i = 0; i < 40; i++) {
-        for (int j = 0; j < 2; j++) {
-            buzzFilter[j][i].reset();
+    delayLine.reset();
+    for (int channel = 0; channel < 2 && channel; channel++) {
+        for (int instance = 0; instance < 6; instance++) {
+            buzzFilter[channel][instance].reset();
         }
     }
 }
@@ -106,7 +118,11 @@ void BuzzGate<SampleType>::reset()
 template <typename SampleType>
 SampleType BuzzGate<SampleType>::processSample (int channel, SampleType sample)
 {
-    SampleType modifiedSample = sample;
+    SampleType modifiedSample, delayedSample;
+    
+    delayLine.pushSample(channel, sample);
+    delayedSample = delayLine.popSample(channel);
+    delayLine.setDelay(sampleRate / delaySampleDivider);
     
     // RMS ballistics filter
     auto env = RMSFilter.processSample (channel, sample);
@@ -117,18 +133,12 @@ SampleType BuzzGate<SampleType>::processSample (int channel, SampleType sample)
     auto gain = (env > threshold) ? static_cast<SampleType> (1.0)
                                   : std::pow (env * thresholdInverse, currentRatio - static_cast<SampleType> (1.0));
     
-    SampleType ratioMultiplier = 2;
+    auto combGain = 1 - std::max((float)gain, 0.2f);
+    modifiedSample = (sample + delayedSample * combGain) * (1 - 0.3f * combGain);
+    
+    auto filterGain = gain ? gain : 0.001f;
     int buzzFilterFreq = 50;
-    for (int i = 0; i < 40; i++) {
-        auto filterGain = gain;
-        if (ratioMultiplier >= 1.25) {
-            SampleType modifiedRatio = ratioMultiplier * currentRatio;
-            filterGain = (env > threshold) ? static_cast<SampleType> (1.0)
-                                          : std::pow (env * thresholdInverse, modifiedRatio - static_cast<SampleType> (1.0));
-            ratioMultiplier -= static_cast<SampleType> (0.25);
-        }
-        
-        filterGain = filterGain ? filterGain : 0.001f;
+    for (int i = 0; i < 6; i++) {
         *buzzFilter[channel][i].coefficients = juce::dsp::IIR::ArrayCoefficients<float>::makePeakFilter(sampleRate, (float)buzzFilterFreq, 10000, filterGain);
         modifiedSample = buzzFilter[channel][i].processSample(modifiedSample);
         buzzFilterFreq += 50;
@@ -144,6 +154,7 @@ void BuzzGate<SampleType>::update()
     threshold = juce::Decibels::decibelsToGain (thresholddB, static_cast<SampleType> (-200.0));
     thresholdInverse = static_cast<SampleType> (1.0) / threshold;
     currentRatio = ratio;
+    delaySampleDivider = frequencyID ? 120 : 100;
 
     envelopeFilter.setAttackTime  (attackTime);
     envelopeFilter.setReleaseTime (releaseTime);

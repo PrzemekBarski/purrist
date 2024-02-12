@@ -10,6 +10,16 @@
 
 #include <JuceHeader.h>
 #include "BuzzGate.h"
+#include "HissGate.h"
+
+struct ChainSettings
+{
+    float buzzThreshold { 1.f }, buzzRatio { 4.f }, buzzFrequency { 0 };
+    float hissThreshold { 1.f }, hissRatio { 4.f }, hissCutoff { 0 };
+    float noiseThreshold { 1.f }, noiseRatio { 4.f }, noiseRelease { 0 };
+};
+
+ChainSettings getChainSettings(juce::AudioProcessorValueTreeState& apvts);
 
 //==============================================================================
 /**
@@ -58,8 +68,19 @@ public:
     juce::AudioProcessorValueTreeState apvts{*this, nullptr, "Parameters", createParameterLayout()};
 
 private:
-    using MonoChain = juce::dsp::ProcessorChain<BuzzGate<float>>;
-    MonoChain leftChain, rightChain;
+    using noiseGate = juce::dsp::NoiseGate<float>;
+    using MonoChain = juce::dsp::ProcessorChain<BuzzGate<float>, HissGate<float>, noiseGate>;
+    MonoChain chain[2];
+    
+    enum ChainPositions
+    {
+        BuzzGate,
+        HissGate,
+        NoiseGate
+    };
+    
+    void updateParameters();
+    
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PurristAudioProcessor)
 };
