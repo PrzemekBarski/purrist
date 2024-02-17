@@ -121,8 +121,6 @@ void PurristAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBloc
     
     updateParameters();
     
-    auto chainSettings = getChainSettings(apvts);
-    
     for (int channel = 0; channel < 2; channel++) {
         chain[channel].get<ChainPositions::BuzzGate>().setAttack(5);
         chain[channel].get<ChainPositions::BuzzGate>().setRelease(20);
@@ -183,8 +181,6 @@ void PurristAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
     
-    auto chainSettings = getChainSettings(apvts);
-    
     updateParameters();
 
     juce::dsp::AudioBlock<float> block(buffer);
@@ -208,8 +204,8 @@ bool PurristAudioProcessor::hasEditor() const
 
 juce::AudioProcessorEditor* PurristAudioProcessor::createEditor()
 {
-//    return new PurristAudioProcessorEditor (*this);
-    return new juce::GenericAudioProcessorEditor(*this);
+    return new PurristAudioProcessorEditor (*this);
+//    return new juce::GenericAudioProcessorEditor(*this);
 }
 
 //==============================================================================
@@ -218,12 +214,22 @@ void PurristAudioProcessor::getStateInformation (juce::MemoryBlock& destData)
     // You should use this method to store your parameters in the memory block.
     // You could do that either as raw data, or use the XML or ValueTree classes
     // as intermediaries to make it easy to save and load complex data.
+    
+    juce::MemoryOutputStream mos(destData, true);
+    apvts.state.writeToStream(mos);
 }
 
 void PurristAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
 {
     // You should use this method to restore your parameters from this memory block,
     // whose contents will have been created by the getStateInformation() call.
+    
+    auto tree = juce::ValueTree::readFromData(data, sizeInBytes);
+    
+    if (tree.isValid()) {
+        apvts.replaceState(tree);
+        updateParameters();
+    }
 }
 
 ChainSettings getChainSettings(juce::AudioProcessorValueTreeState& apvts)
