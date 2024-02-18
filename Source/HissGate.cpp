@@ -59,6 +59,12 @@ void HissGate<SampleType>::setCutoff (float newCutoff)
     update();
 }
 
+template <typename SampleType>
+juce::dsp::IIR::Filter<SampleType>& HissGate<SampleType>::getFilter (int channel)
+{
+    return hissFilter[channel];
+}
+
 //==============================================================================
 template <typename SampleType>
 void HissGate<SampleType>::prepare (const juce::dsp::ProcessSpec& spec)
@@ -72,7 +78,7 @@ void HissGate<SampleType>::prepare (const juce::dsp::ProcessSpec& spec)
     envelopeFilter.prepare (spec);
     
     for (int channel = 0; channel < 2 && channel; channel++) {
-        *hissFilter[channel].coefficients = juce::dsp::IIR::ArrayCoefficients<float>::makeHighShelf(sampleRate, frequency, 1, 1);
+        *hissFilter[channel].coefficients = juce::dsp::IIR::ArrayCoefficients<SampleType>::makeHighShelf(sampleRate, frequency, 1, 1);
         hissFilter[channel].prepare (spec);
     }
 
@@ -106,7 +112,7 @@ SampleType HissGate<SampleType>::processSample (int channel, SampleType sample)
                                   : std::pow (env * thresholdInverse, currentRatio - static_cast<SampleType> (1.0));
     
     auto filterGain = gain ? gain : 0.001f;
-    *hissFilter[channel].coefficients = juce::dsp::IIR::ArrayCoefficients<float>::makeHighShelf(sampleRate, frequency, 1, filterGain);
+    *hissFilter[channel].coefficients = juce::dsp::IIR::ArrayCoefficients<SampleType>::makeHighShelf(sampleRate, frequency, 1, filterGain);
     modifiedSample = hissFilter[channel].processSample(modifiedSample);
 
     // Output

@@ -97,17 +97,17 @@ void PurristAudioProcessor::updateParameters ()
     auto chainSettings = getChainSettings(apvts);
     
     for (int channel = 0; channel < 2; channel++) {
-        chain[channel].get<ChainPositions::BuzzGate>().setThreshold(chainSettings.buzzThreshold);
-        chain[channel].get<ChainPositions::BuzzGate>().setRatio(chainSettings.buzzRatio);
-        chain[channel].get<ChainPositions::BuzzGate>().setFrequencyID(chainSettings.buzzFrequency);
+        chain[channel].get<ChainPositions::buzzGate>().setThreshold(chainSettings.buzzThreshold);
+        chain[channel].get<ChainPositions::buzzGate>().setRatio(chainSettings.buzzRatio);
+        chain[channel].get<ChainPositions::buzzGate>().setFrequencyID(chainSettings.buzzFrequency);
         
-        chain[channel].get<ChainPositions::HissGate>().setThreshold(chainSettings.hissThreshold);
-        chain[channel].get<ChainPositions::HissGate>().setRatio(chainSettings.hissRatio);
-        chain[channel].get<ChainPositions::HissGate>().setCutoff(chainSettings.hissCutoff);
+        chain[channel].get<ChainPositions::hissGate>().setThreshold(chainSettings.hissThreshold);
+        chain[channel].get<ChainPositions::hissGate>().setRatio(chainSettings.hissRatio);
+        chain[channel].get<ChainPositions::hissGate>().setCutoff(chainSettings.hissCutoff);
         
-        chain[channel].get<ChainPositions::NoiseGate>().setThreshold(chainSettings.noiseThreshold);
-        chain[channel].get<ChainPositions::NoiseGate>().setRatio(chainSettings.noiseRatio);
-        chain[channel].get<ChainPositions::NoiseGate>().setRelease(chainSettings.noiseRelease);
+        chain[channel].get<ChainPositions::noiseGate>().setThreshold(chainSettings.noiseThreshold);
+        chain[channel].get<ChainPositions::noiseGate>().setRatio(chainSettings.noiseRatio);
+        chain[channel].get<ChainPositions::noiseGate>().setRelease(chainSettings.noiseRelease);
     }
 }
 
@@ -122,13 +122,13 @@ void PurristAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBloc
     updateParameters();
     
     for (int channel = 0; channel < 2; channel++) {
-        chain[channel].get<ChainPositions::BuzzGate>().setAttack(5);
-        chain[channel].get<ChainPositions::BuzzGate>().setRelease(20);
+        chain[channel].get<ChainPositions::buzzGate>().setAttack(5);
+        chain[channel].get<ChainPositions::buzzGate>().setRelease(20);
         
-        chain[channel].get<ChainPositions::HissGate>().setAttack(5);
-        chain[channel].get<ChainPositions::HissGate>().setRelease(20);
+        chain[channel].get<ChainPositions::hissGate>().setAttack(5);
+        chain[channel].get<ChainPositions::hissGate>().setRelease(20);
         
-        chain[channel].get<ChainPositions::NoiseGate>().setAttack(5);
+        chain[channel].get<ChainPositions::noiseGate>().setAttack(5);
         
         chain[channel].prepare(spec);
     }

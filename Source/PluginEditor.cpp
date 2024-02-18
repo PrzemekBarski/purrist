@@ -68,8 +68,6 @@ std::vector<juce::Component*> PurristAudioProcessorEditor::getComponents()
 
 void PurristAudioProcessorEditor::paint (juce::Graphics& g)
 {
-    // (Our component is opaque, so we must completely fill the background with a solid colour)
-//    g.fillAll (juce::Colour(43, 46, 61));
     g.fillAll (juce::Colour(79, 85, 117));
 }
 
@@ -88,23 +86,24 @@ void PurristAudioProcessorEditor::resized()
     
     auto gap = 6;
     auto sectionWidth = area.getWidth() / 3 - gap * 2 / 3;
-    auto sectionPaddingX = 16;
-    auto sectionPaddingY = 32;
     
     buzzSection.setBounds(area.removeFromLeft(sectionWidth));
     auto buzzSectionArea = buzzSection.getBounds();
     
-    buzzSectionArea.removeFromTop(sectionPaddingY);
-    buzzSectionArea.removeFromRight(sectionPaddingX);
-    buzzSectionArea.removeFromBottom(sectionPaddingY);
-    buzzSectionArea.removeFromLeft(sectionPaddingX);
-    
-    buzzSectionArea.removeFromRight(buzzSectionArea.getWidth() / 2);
-    buzzThresholdSlider.setBounds(buzzSectionArea.removeFromBottom(buzzSectionArea.getHeight() / 2));
-    
-    
     area.removeFromLeft(gap);
+    
     hissSection.setBounds(area.removeFromLeft(sectionWidth));
+    auto hissSectionArea =hissSection.getBounds();
+    
+    auto responseArea = hissSectionArea.removeFromBottom(hissSectionArea.getHeight() / 3);
+    
     area.removeFromLeft(gap);
     noiseSection.setBounds(area.removeFromLeft(sectionWidth));
+}
+
+void BuzzComponent::paintSection(juce::Rectangle<int> area)
+{
+    PurristAudioProcessorEditor* editor = findParentComponentOfClass<PurristAudioProcessorEditor>();
+    area.removeFromRight(area.getWidth() / 2);
+    editor->buzzThresholdSlider.setBounds(area.removeFromBottom(area.getHeight() / 2));
 }

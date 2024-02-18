@@ -36,6 +36,8 @@ public:
     void setRelease (SampleType newRelease);
     
     void setCutoff (float newCutoff);
+    
+    juce::dsp::IIR::Filter<SampleType>& getFilter(int channel);
 
     //==============================================================================
     /** Initialises the processor. */
@@ -87,7 +89,7 @@ private:
     double sampleRate = 44100.0;
     SampleType thresholddB = -100, ratio = 10.0, attackTime = 1.0, releaseTime = 100.0, frequency = 2000.f;
     
-    juce::dsp::IIR::Filter<float> hissFilter[2];
+    juce::dsp::IIR::Filter<SampleType> hissFilter[2];
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (HissGate)
 };

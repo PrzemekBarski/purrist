@@ -21,6 +21,16 @@ struct ChainSettings
 
 ChainSettings getChainSettings(juce::AudioProcessorValueTreeState& apvts);
 
+using NoiseGate = juce::dsp::NoiseGate<float>;
+using MonoChain = juce::dsp::ProcessorChain<BuzzGate<float>, HissGate<float>, NoiseGate>;
+
+enum ChainPositions
+{
+    buzzGate,
+    hissGate,
+    noiseGate
+};
+
 //==============================================================================
 /**
 */
@@ -68,18 +78,8 @@ public:
     juce::AudioProcessorValueTreeState apvts{*this, nullptr, "Parameters", createParameterLayout()};
 
 private:
-    using noiseGate = juce::dsp::NoiseGate<float>;
-    using MonoChain = juce::dsp::ProcessorChain<BuzzGate<float>, HissGate<float>, noiseGate>;
-    MonoChain chain[2];
-    
-    enum ChainPositions
-    {
-        BuzzGate,
-        HissGate,
-        NoiseGate
-    };
-    
     void updateParameters();
+    MonoChain chain[2];
     
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PurristAudioProcessor)
