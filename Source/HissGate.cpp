@@ -60,9 +60,9 @@ void HissGate<SampleType>::setCutoff (float newCutoff)
 }
 
 template <typename SampleType>
-juce::dsp::IIR::Filter<SampleType>& HissGate<SampleType>::getFilter (int channel)
+float HissGate<SampleType>::getCurrentGain (int channel)
 {
-    return hissFilter[channel];
+    return currentGain.get();
 }
 
 //==============================================================================
@@ -110,8 +110,9 @@ SampleType HissGate<SampleType>::processSample (int channel, SampleType sample)
     
     auto gain = (env > threshold) ? static_cast<SampleType> (1.0)
                                   : std::pow (env * thresholdInverse, currentRatio - static_cast<SampleType> (1.0));
-    
-    auto filterGain = gain ? gain : 0.001f;
+
+    auto filterGain = gain > 0.004f ? gain : 0.004f;
+    currentGain.set(float(filterGain));
     *hissFilter[channel].coefficients = juce::dsp::IIR::ArrayCoefficients<SampleType>::makeHighShelf(sampleRate, frequency, 1, filterGain);
     modifiedSample = hissFilter[channel].processSample(modifiedSample);
 

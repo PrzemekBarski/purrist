@@ -41,6 +41,7 @@ noiseReleaseSliderAttachment(audioProcessor.apvts, "noise_release", noiseRelease
     for (auto* component : getComponents()) {
         addAndMakeVisible(component);
     }
+    
     setSize (1024, 500);
     setResizable (true, true);
     setResizeLimits(1024, 500, 9999, 9999);
@@ -75,9 +76,9 @@ void PurristAudioProcessorEditor::resized()
 {
     auto area = getLocalBounds();
     
-    auto paddingX = 20;
-    auto maxHeight = 400;
-    auto paddingY = (area.getHeight() - maxHeight) / 2;
+    int paddingX = 20;
+    int maxHeight = 400;
+    int paddingY = (area.getHeight() - maxHeight) / 2;
     
     area.removeFromTop(paddingY);
     area.removeFromRight(paddingX);
@@ -88,22 +89,67 @@ void PurristAudioProcessorEditor::resized()
     auto sectionWidth = area.getWidth() / 3 - gap * 2 / 3;
     
     buzzSection.setBounds(area.removeFromLeft(sectionWidth));
-    auto buzzSectionArea = buzzSection.getBounds();
     
     area.removeFromLeft(gap);
     
     hissSection.setBounds(area.removeFromLeft(sectionWidth));
-    auto hissSectionArea =hissSection.getBounds();
-    
-    auto responseArea = hissSectionArea.removeFromBottom(hissSectionArea.getHeight() / 3);
     
     area.removeFromLeft(gap);
+    
     noiseSection.setBounds(area.removeFromLeft(sectionWidth));
 }
 
-void BuzzComponent::paintSection(juce::Rectangle<int> area)
+void BuzzComponent::paintSection(juce::Graphics& g, juce::Rectangle<int> area)
 {
     PurristAudioProcessorEditor* editor = findParentComponentOfClass<PurristAudioProcessorEditor>();
     area.removeFromRight(area.getWidth() / 2);
-    editor->buzzThresholdSlider.setBounds(area.removeFromBottom(area.getHeight() / 2));
+    editor->hissCutoffSlider.setBounds(area.removeFromBottom(area.getHeight() / 2));
+}
+
+void HissComponent::paintSection(juce::Graphics& g, juce::Rectangle<int> area)
+{
+    PurristAudioProcessorEditor* editor = findParentComponentOfClass<PurristAudioProcessorEditor>();
+    auto responseArea = area.removeFromBottom(area.getHeight() / 2);
+    auto legendX = responseArea.removeFromBottom(24);
+    auto legendY = responseArea.removeFromRight(48);
+    auto responseAreaWidth = responseArea.getWidth();
+    
+    auto& hissGate = editor->audioProcessor.chain[0].get<ChainPositions::hissGate>();
+    float filterGain = hissGate.getCurrentGain(0);
+    auto filterFrequency = editor->audioProcessor.apvts.getRawParameterValue("hiss_cutoff")->load();
+    auto sampleRate = editor->audioProcessor.getSampleRate();
+    *filter.coefficients = juce::dsp::IIR::ArrayCoefficients<float>::makeHighShelf(sampleRate, float(filterFrequency), 1, filterGain);
+    
+    std::vector<double> magnitudes;
+    
+    magnitudes.resize(responseAreaWidth);
+    
+    for (int i = 0; i < responseAreaWidth; i++) {
+        float magnitude = 1.f;
+        float frequency = juce::mapToLog10<float>(float(i) / float(responseAreaWidth), 200.0, 10000.0);
+        magnitude = filter.coefficients->getMagnitudeForFrequency(frequency, sampleRate);
+        magnitudes[i] = juce::Decibels::gainToDecibels(magnitude);
+    }
+    
+    juce::Path responseCurve;
+    const double outputMin = responseArea.getBottom();
+    const double outputMax = responseArea.getY();
+    auto map = [outputMin, outputMax](double input)
+    {
+        return juce::jmap(input, -48.0, 0.0, outputMin, outputMax);
+    };
+    
+    responseCurve.startNewSubPath(responseArea.getX(), map(magnitudes.front()));
+    
+    for( size_t i = 1; i < magnitudes.size(); ++i )
+    {
+        responseCurve.lineTo(responseArea.getX() + i, map(magnitudes[i]));
+    }
+    g.setColour(juce::Colours::black);
+    g.strokePath(responseCurve, juce::PathStrokeType(2.f));
+}
+
+void HissComponent::timerCallback()
+{
+    repaint();
 }

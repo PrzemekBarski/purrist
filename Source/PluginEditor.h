@@ -48,13 +48,13 @@ public:
         area.removeFromBottom(sectionPaddingY);
         area.removeFromLeft(sectionPaddingX);
         
-        paintSection(area);
+        paintSection(g, area);
     }
 
 private:
     juce::DropShadow shadow = juce::DropShadow(juce::Colours::black, 1, juce::Point<int>(20, 20));
     
-    virtual void paintSection(juce::Rectangle<int> area) {};
+    virtual void paintSection(juce::Graphics& g, juce::Rectangle<int> area) {};
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SectionComponent)
 };
@@ -64,9 +64,24 @@ class BuzzComponent   : public SectionComponent
 public:
     BuzzComponent() {}
 private:
-    void paintSection(juce::Rectangle<int>) override;
+    void paintSection(juce::Graphics& g, juce::Rectangle<int> area) override;
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (BuzzComponent)
+};
+
+class HissComponent   : public SectionComponent,
+juce::Timer
+{
+public:
+    HissComponent() {
+        startTimerHz(60);
+    }
+    void timerCallback() override;
+private:
+    void paintSection(juce::Graphics& g, juce::Rectangle<int> area) override;
+    juce::dsp::IIR::Filter<float> filter;
+    //==============================================================================
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (HissComponent)
 };
 
 class PurristAudioProcessorEditor  : public juce::AudioProcessorEditor
@@ -79,6 +94,10 @@ public:
     void paint (juce::Graphics&) override;
     void resized() override;
     
+    PurristAudioProcessor& audioProcessor;
+    
+    juce::Atomic<bool> filterChanged { false };
+    
     RotarySliderWithLabels  buzzThresholdSlider, buzzRatioSlider,
                             buzzFreqSlider, hissThresholdSlider, hissRatioSlider,
                             hissCutoffSlider, noiseThresholdSlider, noiseRatioSlider,
@@ -87,10 +106,10 @@ public:
 private:
     // This reference is provided as a quick way for your editor to
     // access the processor object that created it.
-    PurristAudioProcessor& audioProcessor;
     
-    SectionComponent hissSection, noiseSection;
+    SectionComponent noiseSection;
     BuzzComponent buzzSection;
+    HissComponent hissSection;
     
     using Attachment = juce::AudioProcessorValueTreeState::SliderAttachment;
     
@@ -100,8 +119,6 @@ private:
                 noiseReleaseSliderAttachment;
     
     std::vector<juce::Component*> getComponents();
-    
-    MonoChain monoChain;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PurristAudioProcessorEditor)
 };

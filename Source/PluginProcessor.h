@@ -76,10 +76,10 @@ public:
     
     static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
     juce::AudioProcessorValueTreeState apvts{*this, nullptr, "Parameters", createParameterLayout()};
+    MonoChain chain[2];
 
 private:
     void updateParameters();
-    MonoChain chain[2];
     
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PurristAudioProcessor)
