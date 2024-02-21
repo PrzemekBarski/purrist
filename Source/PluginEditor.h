@@ -15,12 +15,42 @@
 /**
 */
 
+using Attachment = juce::AudioProcessorValueTreeState::SliderAttachment;
+
+struct LookAndFeel : juce::LookAndFeel_V4
+{
+    void drawRotarySlider (juce::Graphics&,
+                        int x, int y, int width, int height,
+                        float sliderPosProportional,
+                        float rotaryStartAngle,
+                        float rotaryEndAngle,
+                        juce::Slider&) override {}
+};
+
 struct RotarySliderWithLabels : juce::Slider
 {
-    RotarySliderWithLabels() : juce::Slider(juce::Slider::SliderStyle::Rotary, juce::Slider::TextEntryBoxPosition::NoTextBox)
+    RotarySliderWithLabels(juce::RangedAudioParameter& param, juce::String suffix) :
+        juce::Slider(juce::Slider::SliderStyle::Rotary, juce::Slider::TextEntryBoxPosition::NoTextBox),
+    param(&param),
+    suffix(suffix)
     {
-        
+        setLookAndFeel(&lnf);
     }
+    
+    ~RotarySliderWithLabels()
+    {
+        setLookAndFeel(nullptr);
+    }
+    
+//    void paint(juce::Graphics& g) override;
+//    juce::Rectangle<int> getSliderBounds() const;
+//    int getTextHeight() const { return 14; }
+//    juce::String getDisplayString() const;
+    
+private:
+    LookAndFeel lnf;
+    juce::RangedAudioParameter* param;
+    juce::String suffix;
 };
 
 class SectionComponent   : public juce::Component

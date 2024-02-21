@@ -20,16 +20,16 @@ hissRatioSliderAttachment(audioProcessor.apvts, "hiss_ratio", hissRatioSlider),
 hissCutoffSliderAttachment(audioProcessor.apvts, "hiss_cutoff", hissCutoffSlider),
 noiseThresholdSliderAttachment(audioProcessor.apvts, "noise_threshold", noiseThresholdSlider),
 noiseRatioSliderAttachment(audioProcessor.apvts, "noise_ratio", noiseRatioSlider),
-noiseReleaseSliderAttachment(audioProcessor.apvts, "noise_release", noiseReleaseSlider)
-//buzzThresholdSlider(*audioProcessor.apvts.getParameter("buzz_threshold"), "dB"),
-//buzzRatioSlider(*audioProcessor.apvts.getParameter("buzz_ratio"), ":1"),
-//buzzFreqSlider(*audioProcessor.apvts.getParameter("buzz_frequency"), ""),
-//hissThresholdSlider(*audioProcessor.apvts.getParameter("hiss_threshold"), "dB"),
-//hissRatioSlider(*audioProcessor.apvts.getParameter("hiss_ratio"), ":1"),
-//hissCutoffSlider(*audioProcessor.apvts.getParameter("hiss_cutoff"), "Hz"),
-//noiseThresholdSlider(*audioProcessor.apvts.getParameter("noise_threshold"), "dB"),
-//noiseRatioSlider(*audioProcessor.apvts.getParameter("noise_ratio"), ":1"),
-//noiseReleaseSlider(*audioProcessor.apvts.getParameter("noise_release"), "mS")
+noiseReleaseSliderAttachment(audioProcessor.apvts, "noise_release", noiseReleaseSlider),
+buzzThresholdSlider(*audioProcessor.apvts.getParameter("buzz_threshold"), "dB"),
+buzzRatioSlider(*audioProcessor.apvts.getParameter("buzz_ratio"), ":1"),
+buzzFreqSlider(*audioProcessor.apvts.getParameter("buzz_frequency"), ""),
+hissThresholdSlider(*audioProcessor.apvts.getParameter("hiss_threshold"), "dB"),
+hissRatioSlider(*audioProcessor.apvts.getParameter("hiss_ratio"), ":1"),
+hissCutoffSlider(*audioProcessor.apvts.getParameter("hiss_cutoff"), "Hz"),
+noiseThresholdSlider(*audioProcessor.apvts.getParameter("noise_threshold"), "dB"),
+noiseRatioSlider(*audioProcessor.apvts.getParameter("noise_ratio"), ":1"),
+noiseReleaseSlider(*audioProcessor.apvts.getParameter("noise_release"), "mS")
 {
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
