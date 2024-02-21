@@ -11,25 +11,7 @@
 
 //==============================================================================
 PurristAudioProcessorEditor::PurristAudioProcessorEditor (PurristAudioProcessor& p)
-    : AudioProcessorEditor (&p), audioProcessor (p),
-buzzThresholdSliderAttachment(audioProcessor.apvts, "buzz_threshold", buzzThresholdSlider),
-buzzRatioSliderAttachment(audioProcessor.apvts, "buzz_ratio", buzzRatioSlider),
-buzzFreqSliderAttachment(audioProcessor.apvts, "buzz_frequency", buzzFreqSlider),
-hissThresholdSliderAttachment(audioProcessor.apvts, "hiss_threshold", hissThresholdSlider),
-hissRatioSliderAttachment(audioProcessor.apvts, "hiss_ratio", hissRatioSlider),
-hissCutoffSliderAttachment(audioProcessor.apvts, "hiss_cutoff", hissCutoffSlider),
-noiseThresholdSliderAttachment(audioProcessor.apvts, "noise_threshold", noiseThresholdSlider),
-noiseRatioSliderAttachment(audioProcessor.apvts, "noise_ratio", noiseRatioSlider),
-noiseReleaseSliderAttachment(audioProcessor.apvts, "noise_release", noiseReleaseSlider),
-buzzThresholdSlider(*audioProcessor.apvts.getParameter("buzz_threshold"), "dB"),
-buzzRatioSlider(*audioProcessor.apvts.getParameter("buzz_ratio"), ":1"),
-buzzFreqSlider(*audioProcessor.apvts.getParameter("buzz_frequency"), ""),
-hissThresholdSlider(*audioProcessor.apvts.getParameter("hiss_threshold"), "dB"),
-hissRatioSlider(*audioProcessor.apvts.getParameter("hiss_ratio"), ":1"),
-hissCutoffSlider(*audioProcessor.apvts.getParameter("hiss_cutoff"), "Hz"),
-noiseThresholdSlider(*audioProcessor.apvts.getParameter("noise_threshold"), "dB"),
-noiseRatioSlider(*audioProcessor.apvts.getParameter("noise_ratio"), ":1"),
-noiseReleaseSlider(*audioProcessor.apvts.getParameter("noise_release"), "mS")
+    : AudioProcessorEditor (&p), audioProcessor (p), buzzSection(p), hissSection(p), noiseSection(p)
 {
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
@@ -38,7 +20,15 @@ noiseReleaseSlider(*audioProcessor.apvts.getParameter("noise_release"), "mS")
     addAndMakeVisible (hissSection);
     addAndMakeVisible (noiseSection);
     
-    for (auto* component : getComponents()) {
+    for (auto* component : buzzSection.getComponents()) {
+        addAndMakeVisible(component);
+    }
+    
+    for (auto* component : hissSection.getComponents()) {
+        addAndMakeVisible(component);
+    }
+    
+    for (auto* component : noiseSection.getComponents()) {
         addAndMakeVisible(component);
     }
     
@@ -50,22 +40,6 @@ noiseReleaseSlider(*audioProcessor.apvts.getParameter("noise_release"), "mS")
 PurristAudioProcessorEditor::~PurristAudioProcessorEditor(){}
 
 //==============================================================================
-
-std::vector<juce::Component*> PurristAudioProcessorEditor::getComponents()
-{
-    return
-    {
-        &buzzThresholdSlider,
-        &buzzRatioSlider,
-        &buzzFreqSlider,
-        &hissThresholdSlider,
-        &hissRatioSlider,
-        &hissCutoffSlider,
-        &noiseThresholdSlider,
-        &noiseRatioSlider,
-        &noiseReleaseSlider
-    };
-}
 
 void PurristAudioProcessorEditor::paint (juce::Graphics& g)
 {
@@ -101,23 +75,21 @@ void PurristAudioProcessorEditor::resized()
 
 void BuzzComponent::paintSection(juce::Graphics& g, juce::Rectangle<int> area)
 {
-    PurristAudioProcessorEditor* editor = findParentComponentOfClass<PurristAudioProcessorEditor>();
     area.removeFromRight(area.getWidth() / 2);
-    editor->hissCutoffSlider.setBounds(area.removeFromBottom(area.getHeight() / 2));
+//    editor->hissCutoffSlider.setBounds(area.removeFromBottom(area.getHeight() / 2));
 }
 
 void HissComponent::paintSection(juce::Graphics& g, juce::Rectangle<int> area)
 {
-    PurristAudioProcessorEditor* editor = findParentComponentOfClass<PurristAudioProcessorEditor>();
     auto responseArea = area.removeFromBottom(area.getHeight() / 2);
     auto legendX = responseArea.removeFromBottom(24);
     auto legendY = responseArea.removeFromRight(48);
     auto responseAreaWidth = responseArea.getWidth();
     
-    auto& hissGate = editor->audioProcessor.chain[0].get<ChainPositions::hissGate>();
+    auto& hissGate = audioProcessor.chain[0].get<ChainPositions::hissGate>();
     float filterGain = hissGate.getCurrentGain(0);
-    auto filterFrequency = editor->audioProcessor.apvts.getRawParameterValue("hiss_cutoff")->load();
-    auto sampleRate = editor->audioProcessor.getSampleRate();
+    auto filterFrequency = audioProcessor.apvts.getRawParameterValue("hiss_cutoff")->load();
+    auto sampleRate = audioProcessor.getSampleRate();
     *filter.coefficients = juce::dsp::IIR::ArrayCoefficients<float>::makeHighShelf(sampleRate, float(filterFrequency), 1, filterGain);
     
     std::vector<double> magnitudes;
@@ -152,4 +124,34 @@ void HissComponent::paintSection(juce::Graphics& g, juce::Rectangle<int> area)
 void HissComponent::timerCallback()
 {
     repaint();
+}
+
+std::vector<juce::Component*> BuzzComponent::getComponents()
+{
+    return
+    {
+        &buzzThresholdSlider,
+        &buzzRatioSlider,
+        &buzzFreqSlider
+    };
+}
+
+std::vector<juce::Component*> HissComponent::getComponents()
+{
+    return
+    {
+        &hissThresholdSlider,
+        &hissRatioSlider,
+        &hissCutoffSlider
+    };
+}
+
+std::vector<juce::Component*> NoiseComponent::getComponents()
+{
+    return
+    {
+        &noiseThresholdSlider,
+        &noiseRatioSlider,
+        &noiseReleaseSlider
+    };
 }
