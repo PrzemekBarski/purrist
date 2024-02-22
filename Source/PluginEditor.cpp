@@ -24,15 +24,37 @@ void LookAndFeel::drawRotarySlider(juce::Graphics & g,
     auto fill    = slider.findColour (Slider::rotarySliderFillColourId);
 
     auto bounds = Rectangle<int> (x, y, width, height).toFloat().reduced (10);
+    
+    g.setColour(juce::Colours::black);
+    g.drawRect(bounds);
+    
+    if (auto* rswl = dynamic_cast<RotarySliderWithLabels*>(&slider))
+    {
+        auto center = bounds.getCentre();
+        Path p;
+        Rectangle<float> r;
+        r.setLeft(center.getX());
+        r.setRight(center.getX());
+        r.setTop(bounds. getY());
+        r.setBottom(center.getY() - rswl->getTextHeight());
+        
+        g.setFont(rswl->getTextHeight());
+        auto text = rswl->getDisplayString();
+        auto strWidth = g.getCurrentFont().getStringWidth(text);
+        r.setSize(strWidth, rswl->getTextHeight());
+        r.setCentre(bounds.getCentreX(), bounds.getCentreY() + rswl->getTextHeight() / 2);
+        g. setColour (Colours::black);
+        g.drawFittedText(text, r.toNearestInt(), juce::Justification::centred, 1);
+    }
 
-    auto radius = jmin (bounds.getWidth(), bounds.getHeight()) / 2.0f;
+    auto radius = jmin (bounds.getWidth(), bounds.getHeight() * 2) / 2.0f;
     auto toAngle = rotaryStartAngle + sliderPosProportional * (rotaryEndAngle - rotaryStartAngle);
     auto lineW = jmin (8.0f, radius * 0.5f);
     auto arcRadius = radius - lineW * 0.5f;
 
     Path backgroundArc;
     backgroundArc.addCentredArc (bounds.getCentreX(),
-                                 bounds.getCentreY(),
+                                 bounds.getBottom(),
                                  arcRadius,
                                  arcRadius,
                                  0.0f,
@@ -47,7 +69,7 @@ void LookAndFeel::drawRotarySlider(juce::Graphics & g,
     {
         Path valueArc;
         valueArc.addCentredArc (bounds.getCentreX(),
-                                bounds.getCentreY(),
+                                bounds.getBottom(),
                                 arcRadius,
                                 arcRadius,
                                 0.0f,
@@ -61,7 +83,7 @@ void LookAndFeel::drawRotarySlider(juce::Graphics & g,
 
     auto thumbWidth = lineW * 2.0f;
     Point<float> thumbPoint (bounds.getCentreX() + arcRadius * std::cos (toAngle - MathConstants<float>::halfPi),
-                             bounds.getCentreY() + arcRadius * std::sin (toAngle - MathConstants<float>::halfPi));
+                             bounds.getBottom() + arcRadius * std::sin (toAngle - MathConstants<float>::halfPi));
 
     g.setColour (slider.findColour (Slider::thumbColourId));
     g.fillEllipse (Rectangle<float> (thumbWidth, thumbWidth).withCentre (thumbPoint));
@@ -74,9 +96,10 @@ void RotarySliderWithLabels::paint(juce::Graphics &g)
     
     auto startAngle = degreesToRadians(270.f);
     auto endAngle = degreesToRadians(90.f) + MathConstants<float>::twoPi;
-    
     auto range = getRange();
     auto sliderBounds = getSliderBounds();
+    g.setColour(juce::Colours::red);
+    g.drawRect(getLocalBounds());
     
     getLookAndFeel().drawRotarySlider(g,
                                 sliderBounds.getX(),
@@ -93,7 +116,23 @@ void RotarySliderWithLabels::paint(juce::Graphics &g)
 
 juce::Rectangle<int> RotarySliderWithLabels::getSliderBounds() const
 {
-    return getLocalBounds();
+    auto bounds = getLocalBounds();
+    auto size = bounds.getWidth() / 2;
+    auto textFieldHeight = getTextHeight() * 2;
+    if (bounds.getHeight() - textFieldHeight < size) {
+        size = bounds.getHeight() - textFieldHeight;
+    }
+    juce::Rectangle<int> r;
+    r.setSize(size * 2, size);
+    r.setCentre(bounds.getCentreX(), 0);
+    r.setY(2);
+    
+    return r;
+}
+
+juce::String RotarySliderWithLabels::getDisplayString() const
+{
+    return juce::String(getValue());
 }
 
 //==============================================================================
@@ -156,6 +195,7 @@ void BuzzComponent::paintSection(juce::Graphics& g, juce::Rectangle<int> area)
 void HissComponent::paintSection(juce::Graphics& g, juce::Rectangle<int> area)
 {
     auto responseArea = area.removeFromBottom(area.getHeight() / 3);
+    area.removeFromBottom(area.getHeight() / 2);
     hissCutoffSlider.setBounds(area.removeFromLeft(area.getWidth() / 2));
     auto legendX = responseArea.removeFromBottom(24);
     auto legendY = responseArea.removeFromRight(48);
