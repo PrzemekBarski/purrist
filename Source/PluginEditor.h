@@ -61,7 +61,6 @@ public:
     void paint (juce::Graphics& g) override {
         
         auto area = getLocalBounds();
-        auto shadowOffset = 20;
         
         area.removeFromRight(shadowOffset);
         area.removeFromBottom(shadowOffset);
@@ -87,7 +86,8 @@ protected:
     PurristAudioProcessor& audioProcessor;
 
 private:
-    juce::DropShadow shadow = juce::DropShadow(juce::Colours::black, 1, juce::Point<int>(20, 20));
+    int shadowOffset = 10;
+    juce::DropShadow shadow = juce::DropShadow(juce::Colours::black, 1, juce::Point<int>(shadowOffset, shadowOffset));
     
     virtual void paintSection(juce::Graphics& g, juce::Rectangle<int> area) {};
     //==============================================================================
@@ -99,22 +99,22 @@ class BuzzComponent   : public SectionComponent
 public:
     BuzzComponent(PurristAudioProcessor& p)
         : SectionComponent(p),
-    buzzThresholdSliderAttachment(audioProcessor.apvts, "buzz_threshold", buzzThresholdSlider),
-    buzzRatioSliderAttachment(audioProcessor.apvts, "buzz_ratio", buzzRatioSlider),
-    buzzFreqSliderAttachment(audioProcessor.apvts, "buzz_frequency", buzzFreqSlider),
     buzzThresholdSlider(*audioProcessor.apvts.getParameter("buzz_threshold"), "dB"),
     buzzRatioSlider(*audioProcessor.apvts.getParameter("buzz_ratio"), ":1"),
-    buzzFreqSlider(*audioProcessor.apvts.getParameter("buzz_frequency"), "") {}
+    buzzFreqSlider(*audioProcessor.apvts.getParameter("buzz_frequency"), ""),
+    buzzThresholdSliderAttachment(audioProcessor.apvts, "buzz_threshold", buzzThresholdSlider),
+    buzzRatioSliderAttachment(audioProcessor.apvts, "buzz_ratio", buzzRatioSlider),
+    buzzFreqSliderAttachment(audioProcessor.apvts, "buzz_frequency", buzzFreqSlider) {}
     
     std::vector<juce::Component*> getComponents() override;
 private:
     void paintSection(juce::Graphics& g, juce::Rectangle<int> area) override;
     
-    Attachment  buzzThresholdSliderAttachment, buzzRatioSliderAttachment,
-                buzzFreqSliderAttachment;
-    
     RotarySliderWithLabels  buzzThresholdSlider, buzzRatioSlider,
                             buzzFreqSlider;
+    
+    Attachment  buzzThresholdSliderAttachment, buzzRatioSliderAttachment,
+                buzzFreqSliderAttachment;
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (BuzzComponent)
 };
@@ -125,12 +125,12 @@ juce::Timer
 public:
     HissComponent(PurristAudioProcessor& p)
         : SectionComponent(p),
-    hissThresholdSliderAttachment(audioProcessor.apvts, "hiss_threshold", hissThresholdSlider),
-    hissRatioSliderAttachment(audioProcessor.apvts, "hiss_ratio", hissRatioSlider),
-    hissCutoffSliderAttachment(audioProcessor.apvts, "hiss_cutoff", hissCutoffSlider),
     hissThresholdSlider(*audioProcessor.apvts.getParameter("hiss_threshold"), "dB"),
     hissRatioSlider(*audioProcessor.apvts.getParameter("hiss_ratio"), ":1"),
-    hissCutoffSlider(*audioProcessor.apvts.getParameter("hiss_cutoff"), "Hz")
+    hissCutoffSlider(*audioProcessor.apvts.getParameter("hiss_cutoff"), "Hz"),
+    hissThresholdSliderAttachment(audioProcessor.apvts, "hiss_threshold", hissThresholdSlider),
+    hissRatioSliderAttachment(audioProcessor.apvts, "hiss_ratio", hissRatioSlider),
+    hissCutoffSliderAttachment(audioProcessor.apvts, "hiss_cutoff", hissCutoffSlider)
     {
         startTimerHz(60);
     }
@@ -141,11 +141,11 @@ private:
     void paintSection(juce::Graphics& g, juce::Rectangle<int> area) override;
     juce::dsp::IIR::Filter<float> filter;
     
-    Attachment  hissThresholdSliderAttachment, hissRatioSliderAttachment,
-                hissCutoffSliderAttachment;
-    
     RotarySliderWithLabels  hissThresholdSlider, hissRatioSlider,
                             hissCutoffSlider;
+    
+    Attachment  hissThresholdSliderAttachment, hissRatioSliderAttachment,
+                hissCutoffSliderAttachment;
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (HissComponent)
 };
@@ -155,23 +155,23 @@ class NoiseComponent   : public SectionComponent
 public:
     NoiseComponent(PurristAudioProcessor& p)
         : SectionComponent(p),
-    noiseThresholdSliderAttachment(audioProcessor.apvts, "noise_threshold", noiseThresholdSlider),
-    noiseRatioSliderAttachment(audioProcessor.apvts, "noise_ratio", noiseRatioSlider),
-    noiseReleaseSliderAttachment(audioProcessor.apvts, "noise_release", noiseReleaseSlider),
     noiseThresholdSlider(*audioProcessor.apvts.getParameter("noise_threshold"), "dB"),
     noiseRatioSlider(*audioProcessor.apvts.getParameter("noise_ratio"), ":1"),
-    noiseReleaseSlider(*audioProcessor.apvts.getParameter("noise_release"), "mS") {}
+    noiseReleaseSlider(*audioProcessor.apvts.getParameter("noise_release"), "mS"),
+    noiseThresholdSliderAttachment(audioProcessor.apvts, "noise_threshold", noiseThresholdSlider),
+    noiseRatioSliderAttachment(audioProcessor.apvts, "noise_ratio", noiseRatioSlider),
+    noiseReleaseSliderAttachment(audioProcessor.apvts, "noise_release", noiseReleaseSlider) {}
     
     std::vector<juce::Component*> getComponents() override;
 private:
     void paintSection(juce::Graphics& g, juce::Rectangle<int> area) override {};
     juce::dsp::IIR::Filter<float> filter;
     
-    Attachment  noiseThresholdSliderAttachment, noiseRatioSliderAttachment,
-                noiseReleaseSliderAttachment;
-    
     RotarySliderWithLabels  noiseThresholdSlider, noiseRatioSlider,
                             noiseReleaseSlider;
+    
+    Attachment  noiseThresholdSliderAttachment, noiseRatioSliderAttachment,
+                noiseReleaseSliderAttachment;
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (NoiseComponent)
 };
