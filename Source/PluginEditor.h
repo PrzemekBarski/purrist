@@ -24,7 +24,7 @@ struct LookAndFeel : juce::LookAndFeel_V4
                         float sliderPosProportional,
                         float rotaryStartAngle,
                         float rotaryEndAngle,
-                        juce::Slider&) override {}
+                           juce::Slider&) override;
 };
 
 struct RotarySliderWithLabels : juce::Slider
@@ -34,6 +34,7 @@ struct RotarySliderWithLabels : juce::Slider
     param(&param),
     suffix(suffix)
     {
+        lnf.setColour (juce::Slider::thumbColourId, juce::Colours::white);
         setLookAndFeel(&lnf);
     }
     
@@ -42,10 +43,10 @@ struct RotarySliderWithLabels : juce::Slider
         setLookAndFeel(nullptr);
     }
     
-//    void paint(juce::Graphics& g) override;
-//    juce::Rectangle<int> getSliderBounds() const;
-//    int getTextHeight() const { return 14; }
-//    juce::String getDisplayString() const;
+    void paint(juce::Graphics& g) override;
+    juce::Rectangle<int> getSliderBounds() const;
+    int getTextHeight() const { return 14; }
+    juce::String getDisplayString() const;
     
 private:
     LookAndFeel lnf;
@@ -80,7 +81,11 @@ public:
         paintSection(g, area);
     }
     
-    virtual std::vector<juce::Component*> getComponents() = 0;
+    virtual std::vector<juce::Component*> getComponents()
+    {
+        DBG("parent getComponents");
+        return {};
+    }
     
 protected:
     PurristAudioProcessor& audioProcessor;
@@ -104,7 +109,12 @@ public:
     buzzFreqSlider(*audioProcessor.apvts.getParameter("buzz_frequency"), ""),
     buzzThresholdSliderAttachment(audioProcessor.apvts, "buzz_threshold", buzzThresholdSlider),
     buzzRatioSliderAttachment(audioProcessor.apvts, "buzz_ratio", buzzRatioSlider),
-    buzzFreqSliderAttachment(audioProcessor.apvts, "buzz_frequency", buzzFreqSlider) {}
+    buzzFreqSliderAttachment(audioProcessor.apvts, "buzz_frequency", buzzFreqSlider)
+    {
+        for (auto* component : getComponents()) {
+            addAndMakeVisible(component);
+        }
+    }
     
     std::vector<juce::Component*> getComponents() override;
 private:
@@ -133,6 +143,9 @@ public:
     hissCutoffSliderAttachment(audioProcessor.apvts, "hiss_cutoff", hissCutoffSlider)
     {
         startTimerHz(60);
+        for (auto* component : getComponents()) {
+            addAndMakeVisible(component);
+        }
     }
     
     std::vector<juce::Component*> getComponents() override;
@@ -160,7 +173,12 @@ public:
     noiseReleaseSlider(*audioProcessor.apvts.getParameter("noise_release"), "mS"),
     noiseThresholdSliderAttachment(audioProcessor.apvts, "noise_threshold", noiseThresholdSlider),
     noiseRatioSliderAttachment(audioProcessor.apvts, "noise_ratio", noiseRatioSlider),
-    noiseReleaseSliderAttachment(audioProcessor.apvts, "noise_release", noiseReleaseSlider) {}
+    noiseReleaseSliderAttachment(audioProcessor.apvts, "noise_release", noiseReleaseSlider)
+    {
+        for (auto* component : getComponents()) {
+            addAndMakeVisible(component);
+        }
+    }
     
     std::vector<juce::Component*> getComponents() override;
 private:

@@ -9,6 +9,93 @@
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
 
+void LookAndFeel::drawRotarySlider(juce::Graphics & g,
+                                int x,
+                                int y,
+                                int width,
+                                int height,
+                                float sliderPosProportional,
+                                float rotaryStartAngle,
+                                float rotaryEndAngle,
+                                juce::Slider & slider)
+{
+    using namespace juce;
+    auto outline = slider.findColour (Slider::rotarySliderOutlineColourId);
+    auto fill    = slider.findColour (Slider::rotarySliderFillColourId);
+
+    auto bounds = Rectangle<int> (x, y, width, height).toFloat().reduced (10);
+
+    auto radius = jmin (bounds.getWidth(), bounds.getHeight()) / 2.0f;
+    auto toAngle = rotaryStartAngle + sliderPosProportional * (rotaryEndAngle - rotaryStartAngle);
+    auto lineW = jmin (8.0f, radius * 0.5f);
+    auto arcRadius = radius - lineW * 0.5f;
+
+    Path backgroundArc;
+    backgroundArc.addCentredArc (bounds.getCentreX(),
+                                 bounds.getCentreY(),
+                                 arcRadius,
+                                 arcRadius,
+                                 0.0f,
+                                 rotaryStartAngle,
+                                 rotaryEndAngle,
+                                 true);
+
+    g.setColour (outline);
+    g.strokePath (backgroundArc, PathStrokeType (lineW, PathStrokeType::curved, PathStrokeType::rounded));
+
+    if (slider.isEnabled())
+    {
+        Path valueArc;
+        valueArc.addCentredArc (bounds.getCentreX(),
+                                bounds.getCentreY(),
+                                arcRadius,
+                                arcRadius,
+                                0.0f,
+                                rotaryStartAngle,
+                                toAngle,
+                                true);
+
+        g.setColour (fill);
+        g.strokePath (valueArc, PathStrokeType (lineW, PathStrokeType::curved, PathStrokeType::rounded));
+    }
+
+    auto thumbWidth = lineW * 2.0f;
+    Point<float> thumbPoint (bounds.getCentreX() + arcRadius * std::cos (toAngle - MathConstants<float>::halfPi),
+                             bounds.getCentreY() + arcRadius * std::sin (toAngle - MathConstants<float>::halfPi));
+
+    g.setColour (slider.findColour (Slider::thumbColourId));
+    g.fillEllipse (Rectangle<float> (thumbWidth, thumbWidth).withCentre (thumbPoint));
+    g.setColour (fill);
+    g.drawEllipse(Rectangle<float> (thumbWidth, thumbWidth).withCentre (thumbPoint), 6);
+}
+void RotarySliderWithLabels::paint(juce::Graphics &g)
+{
+    using namespace juce;
+    
+    auto startAngle = degreesToRadians(270.f);
+    auto endAngle = degreesToRadians(90.f) + MathConstants<float>::twoPi;
+    
+    auto range = getRange();
+    auto sliderBounds = getSliderBounds();
+    
+    getLookAndFeel().drawRotarySlider(g,
+                                sliderBounds.getX(),
+                                sliderBounds.getY(),
+                                sliderBounds.getWidth(),
+                                sliderBounds.getHeight(),
+                                jmap(getValue(),
+                                range.getStart(),
+                                range.getEnd(), 0.0, 1.0),
+                                startAngle,
+                                endAngle,
+                                *this);
+}
+
+juce::Rectangle<int> RotarySliderWithLabels::getSliderBounds() const
+{
+    return getLocalBounds();
+}
+
 //==============================================================================
 PurristAudioProcessorEditor::PurristAudioProcessorEditor (PurristAudioProcessor& p)
     : AudioProcessorEditor (&p), audioProcessor (p), buzzSection(p), hissSection(p), noiseSection(p)
@@ -19,18 +106,6 @@ PurristAudioProcessorEditor::PurristAudioProcessorEditor (PurristAudioProcessor&
     addAndMakeVisible (buzzSection);
     addAndMakeVisible (hissSection);
     addAndMakeVisible (noiseSection);
-    
-    for (auto* component : buzzSection.getComponents()) {
-        addAndMakeVisible(component);
-    }
-    
-    for (auto* component : hissSection.getComponents()) {
-        addAndMakeVisible(component);
-    }
-    
-    for (auto* component : noiseSection.getComponents()) {
-        addAndMakeVisible(component);
-    }
     
     setSize (1024, 500);
     setResizable (true, true);
@@ -75,13 +150,13 @@ void PurristAudioProcessorEditor::resized()
 
 void BuzzComponent::paintSection(juce::Graphics& g, juce::Rectangle<int> area)
 {
-    area.removeFromRight(area.getWidth() / 2);
-//    editor->hissCutoffSlider.setBounds(area.removeFromBottom(area.getHeight() / 2));
+    // area.removeFromRight(area.getWidth() / 2);
 }
 
 void HissComponent::paintSection(juce::Graphics& g, juce::Rectangle<int> area)
 {
-    auto responseArea = area.removeFromBottom(area.getHeight() / 2);
+    auto responseArea = area.removeFromBottom(area.getHeight() / 3);
+    hissCutoffSlider.setBounds(area.removeFromLeft(area.getWidth() / 2));
     auto legendX = responseArea.removeFromBottom(24);
     auto legendY = responseArea.removeFromRight(48);
     auto responseAreaWidth = responseArea.getWidth();
@@ -138,6 +213,7 @@ std::vector<juce::Component*> BuzzComponent::getComponents()
 
 std::vector<juce::Component*> HissComponent::getComponents()
 {
+    DBG("child getComponents");
     return
     {
         &hissThresholdSlider,
