@@ -125,8 +125,8 @@ void PurristAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBloc
         chain[channel].get<ChainPositions::buzzGate>().setAttack(5);
         chain[channel].get<ChainPositions::buzzGate>().setRelease(20);
         
-        chain[channel].get<ChainPositions::hissGate>().setAttack(5);
-        chain[channel].get<ChainPositions::hissGate>().setRelease(20);
+        chain[channel].get<ChainPositions::hissGate>().setAttack(50);
+        chain[channel].get<ChainPositions::hissGate>().setRelease(300);
         
         chain[channel].get<ChainPositions::noiseGate>().setAttack(5);
         

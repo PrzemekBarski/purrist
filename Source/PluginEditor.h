@@ -46,6 +46,7 @@ struct RotarySliderWithLabels : juce::Slider
     void paint(juce::Graphics& g) override;
     juce::Rectangle<int> getSliderBounds() const;
     int getTextHeight() const { return 14; }
+    int getLabelTextHeight() const { return 18; }
     juce::String getDisplayString() const;
     
 private:
@@ -61,24 +62,38 @@ public:
 
     void paint (juce::Graphics& g) override {
         
-        auto area = getLocalBounds();
+        auto bounds = getLocalBounds();
         
-        area.removeFromRight(shadowOffset);
-        area.removeFromBottom(shadowOffset);
+        bounds.removeFromRight(shadowOffset);
+        bounds.removeFromBottom(shadowOffset);
         
-        shadow.drawForRectangle(g, area);
+        shadow.drawForRectangle(g, bounds);
         g.setColour (juce::Colours::white);
-        g.fillRect(area.toFloat());
+        g.fillRect(bounds.toFloat());
         
         auto sectionPaddingX = 16;
         auto sectionPaddingY = 32;
         
+        bounds.removeFromTop(sectionPaddingY);
+        bounds.removeFromRight(sectionPaddingX);
+        bounds.removeFromBottom(sectionPaddingY);
+        bounds.removeFromLeft(sectionPaddingX);
+        
+        paintSection(g);
+    }
+    
+    juce::Rectangle<int> getSectionArea()
+    {
+        auto area = getLocalBounds();
+        
+        area.removeFromRight(shadowOffset);
+        area.removeFromBottom(shadowOffset);
         area.removeFromTop(sectionPaddingY);
         area.removeFromRight(sectionPaddingX);
         area.removeFromBottom(sectionPaddingY);
         area.removeFromLeft(sectionPaddingX);
         
-        paintSection(g, area);
+        return area;
     }
     
     virtual std::vector<juce::Component*> getComponents()
@@ -91,10 +106,10 @@ protected:
     PurristAudioProcessor& audioProcessor;
 
 private:
-    int shadowOffset = 10;
+    int shadowOffset = 10, sectionPaddingX = 16, sectionPaddingY = 32;
     juce::DropShadow shadow = juce::DropShadow(juce::Colours::black, 1, juce::Point<int>(shadowOffset, shadowOffset));
     
-    virtual void paintSection(juce::Graphics& g, juce::Rectangle<int> area) {};
+    virtual void paintSection(juce::Graphics& g) {};
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SectionComponent)
 };
@@ -118,7 +133,7 @@ public:
     
     std::vector<juce::Component*> getComponents() override;
 private:
-    void paintSection(juce::Graphics& g, juce::Rectangle<int> area) override;
+    void paintSection(juce::Graphics& g) override;
     
     RotarySliderWithLabels  buzzThresholdSlider, buzzRatioSlider,
                             buzzFreqSlider;
@@ -148,10 +163,11 @@ public:
         }
     }
     
+    void resized() override;
     std::vector<juce::Component*> getComponents() override;
     void timerCallback() override;
 private:
-    void paintSection(juce::Graphics& g, juce::Rectangle<int> area) override;
+    void paintSection(juce::Graphics& g) override;
     juce::dsp::IIR::Filter<float> filter;
     
     RotarySliderWithLabels  hissThresholdSlider, hissRatioSlider,
@@ -182,7 +198,7 @@ public:
     
     std::vector<juce::Component*> getComponents() override;
 private:
-    void paintSection(juce::Graphics& g, juce::Rectangle<int> area) override {};
+    void paintSection(juce::Graphics& g) override {};
     juce::dsp::IIR::Filter<float> filter;
     
     RotarySliderWithLabels  noiseThresholdSlider, noiseRatioSlider,

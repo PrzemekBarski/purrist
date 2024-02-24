@@ -25,8 +25,8 @@ void LookAndFeel::drawRotarySlider(juce::Graphics & g,
 
     auto bounds = Rectangle<int> (x, y, width, height).toFloat().reduced (10);
     
-    g.setColour(juce::Colours::black);
-    g.drawRect(bounds);
+//    g.setColour(juce::Colours::black);
+//    g.drawRect(bounds);
     
     if (auto* rswl = dynamic_cast<RotarySliderWithLabels*>(&slider))
     {
@@ -98,8 +98,17 @@ void RotarySliderWithLabels::paint(juce::Graphics &g)
     auto endAngle = degreesToRadians(90.f) + MathConstants<float>::twoPi;
     auto range = getRange();
     auto sliderBounds = getSliderBounds();
-    g.setColour(juce::Colours::red);
-    g.drawRect(getLocalBounds());
+    auto area = getLocalBounds();
+    area.removeFromTop(sliderBounds.getHeight());
+    auto label = area.removeFromTop(getLabelTextHeight() * 1.5);
+    
+    g.setFont(getLabelTextHeight());
+    g.setColour (Colours::black);
+    g.drawFittedText(param->getName(20), label, juce::Justification::centred, 1);
+    
+//    g.setColour(juce::Colours::red);
+//    g.drawRect(getLocalBounds());
+    
     
     getLookAndFeel().drawRotarySlider(g,
                                 sliderBounds.getX(),
@@ -118,7 +127,7 @@ juce::Rectangle<int> RotarySliderWithLabels::getSliderBounds() const
 {
     auto bounds = getLocalBounds();
     auto size = bounds.getWidth() / 2;
-    auto textFieldHeight = getTextHeight() * 2;
+    auto textFieldHeight = getLabelTextHeight() * 1.5;
     if (bounds.getHeight() - textFieldHeight < size) {
         size = bounds.getHeight() - textFieldHeight;
     }
@@ -146,7 +155,7 @@ juce::String RotarySliderWithLabels::getDisplayString() const
             addK = true;
         }
         
-        str = juce::String(val, (addK ? 2 : 0), false);
+        str = juce::String(val, 1, false);
     }
     else
     {
@@ -174,10 +183,9 @@ PurristAudioProcessorEditor::PurristAudioProcessorEditor (PurristAudioProcessor&
     addAndMakeVisible (buzzSection);
     addAndMakeVisible (hissSection);
     addAndMakeVisible (noiseSection);
-    
-    setSize (1024, 500);
     setResizable (true, true);
     setResizeLimits(1024, 500, 9999, 9999);
+    setSize (1024, 500);
 }
 
 PurristAudioProcessorEditor::~PurristAudioProcessorEditor(){}
@@ -216,18 +224,17 @@ void PurristAudioProcessorEditor::resized()
     noiseSection.setBounds(area.removeFromLeft(sectionWidth));
 }
 
-void BuzzComponent::paintSection(juce::Graphics& g, juce::Rectangle<int> area)
+void BuzzComponent::paintSection(juce::Graphics& g)
 {
     // area.removeFromRight(area.getWidth() / 2);
 }
 
-void HissComponent::paintSection(juce::Graphics& g, juce::Rectangle<int> area)
+void HissComponent::paintSection(juce::Graphics& g)
 {
-    auto responseArea = area.removeFromBottom(area.getHeight() / 3);
-    area.removeFromBottom(area.getHeight() / 2);
-    hissCutoffSlider.setBounds(area.removeFromLeft(area.getWidth() / 2));
-    auto legendX = responseArea.removeFromBottom(24);
-    auto legendY = responseArea.removeFromRight(48);
+    auto area = getSectionArea();
+    auto responseArea = area.removeFromBottom(area.getHeight() / 4);
+//    auto legendX = responseArea.removeFromBottom(24);
+//    auto legendY = responseArea.removeFromRight(48);
     auto responseAreaWidth = responseArea.getWidth();
     
     auto& hissGate = audioProcessor.chain[0].get<ChainPositions::hissGate>();
@@ -242,7 +249,7 @@ void HissComponent::paintSection(juce::Graphics& g, juce::Rectangle<int> area)
     
     for (int i = 0; i < responseAreaWidth; i++) {
         float magnitude = 1.f;
-        float frequency = juce::mapToLog10<float>(float(i) / float(responseAreaWidth), 200.0, 10000.0);
+        float frequency = juce::mapToLog10<float>(float(i) / float(responseAreaWidth), 400.0, 10000.0);
         magnitude = filter.coefficients->getMagnitudeForFrequency(frequency, sampleRate);
         magnitudes[i] = juce::Decibels::gainToDecibels(magnitude);
     }
@@ -252,7 +259,7 @@ void HissComponent::paintSection(juce::Graphics& g, juce::Rectangle<int> area)
     const double outputMax = responseArea.getY();
     auto map = [outputMin, outputMax](double input)
     {
-        return juce::jmap(input, -48.0, 0.0, outputMin, outputMax);
+        return juce::jmap(input, -24.0, 0.0, outputMin, outputMax);
     };
     
     responseCurve.startNewSubPath(responseArea.getX(), map(magnitudes.front()));
@@ -263,6 +270,14 @@ void HissComponent::paintSection(juce::Graphics& g, juce::Rectangle<int> area)
     }
     g.setColour(juce::Colours::black);
     g.strokePath(responseCurve, juce::PathStrokeType(2.f));
+}
+
+void HissComponent::resized()
+{
+    auto area = getSectionArea();
+    area.removeFromBottom(area.getHeight() * 0.66f);
+    hissRatioSlider.setBounds(area.removeFromLeft(area.getWidth() / 2));
+    hissCutoffSlider.setBounds(area);
 }
 
 void HissComponent::timerCallback()
