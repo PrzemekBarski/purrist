@@ -11,6 +11,7 @@
 #include <JuceHeader.h>
 #include "PluginProcessor.h"
 #include "GUI.h"
+#include "ResponseCurve.h"
 
 //==============================================================================
 /**
@@ -107,12 +108,11 @@ private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (BuzzComponent)
 };
 
-class HissComponent   : public SectionComponent,
-juce::Timer
+class HissComponent   : public SectionComponent
 {
 public:
     HissComponent(PurristAudioProcessor& p)
-        : SectionComponent(p),
+        : SectionComponent(p), responseCurve(p),
     hissThresholdSlider(*audioProcessor.apvts.getParameter("hiss_threshold"), "dB"),
     hissRatioSlider(*audioProcessor.apvts.getParameter("hiss_ratio"), ":1"),
     hissCutoffSlider(*audioProcessor.apvts.getParameter("hiss_cutoff"), "Hz"),
@@ -120,7 +120,6 @@ public:
     hissRatioSliderAttachment(audioProcessor.apvts, "hiss_ratio", hissRatioSlider),
     hissCutoffSliderAttachment(audioProcessor.apvts, "hiss_cutoff", hissCutoffSlider)
     {
-        startTimerHz(60);
         for (auto* component : getComponents()) {
             addAndMakeVisible(component);
         }
@@ -128,11 +127,10 @@ public:
     
     void resized() override;
     std::vector<juce::Component*> getComponents() override;
-    void timerCallback() override;
 private:
     void paintSection(juce::Graphics& g) override;
-    juce::dsp::IIR::Filter<float> filter;
-    juce:: Image background;
+    
+    ResponseCurve responseCurve;
     
     RotarySliderWithLabels  hissThresholdSlider, hissRatioSlider,
                             hissCutoffSlider;
