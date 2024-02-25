@@ -111,7 +111,8 @@ SampleType HissGate<SampleType>::processSample (int channel, SampleType sample)
     auto gain = (env > threshold) ? static_cast<SampleType> (1.0)
                                   : std::pow (env * thresholdInverse, currentRatio - static_cast<SampleType> (1.0));
 
-    auto filterGain = gain > 0.0631f ? gain : 0.0631f;
+    auto minGain = juce::Decibels::decibelsToGain(static_cast<SampleType> (-24.0));
+    auto filterGain = gain > minGain ? gain : minGain;
     currentGain.set(float(filterGain));
     *hissFilter[channel].coefficients = juce::dsp::IIR::ArrayCoefficients<SampleType>::makeHighShelf(sampleRate, frequency, 1, filterGain);
     modifiedSample = hissFilter[channel].processSample(modifiedSample);

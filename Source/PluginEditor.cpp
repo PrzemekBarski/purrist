@@ -232,10 +232,11 @@ void BuzzComponent::paintSection(juce::Graphics& g)
 void HissComponent::paintSection(juce::Graphics& g)
 {
     auto area = getSectionArea();
+    
     auto responseArea = area.removeFromBottom(area.getHeight() / 4);
-//    auto legendX = responseArea.removeFromBottom(24);
-//    auto legendY = responseArea.removeFromRight(48);
     auto responseAreaWidth = responseArea.getWidth();
+    
+    g.drawImage(background, responseArea.toFloat());
     
     auto& hissGate = audioProcessor.chain[0].get<ChainPositions::hissGate>();
     float filterGain = hissGate.getCurrentGain(0);
@@ -243,13 +244,16 @@ void HissComponent::paintSection(juce::Graphics& g)
     auto sampleRate = audioProcessor.getSampleRate();
     *filter.coefficients = juce::dsp::IIR::ArrayCoefficients<float>::makeHighShelf(sampleRate, float(filterFrequency), 1, filterGain);
     
+//    g.setColour(juce::Colours::red);
+//    g.drawRect(responseArea);
+    
     std::vector<double> magnitudes;
     
     magnitudes.resize(responseAreaWidth);
     
     for (int i = 0; i < responseAreaWidth; i++) {
         float magnitude = 1.f;
-        float frequency = juce::mapToLog10<float>(float(i) / float(responseAreaWidth), 400.0, 10000.0);
+        float frequency = juce::mapToLog10<float>(float(i) / float(responseAreaWidth), 500.0, 10000.0);
         magnitude = filter.coefficients->getMagnitudeForFrequency(frequency, sampleRate);
         magnitudes[i] = juce::Decibels::gainToDecibels(magnitude);
     }
@@ -259,12 +263,12 @@ void HissComponent::paintSection(juce::Graphics& g)
     const double outputMax = responseArea.getY();
     auto map = [outputMin, outputMax](double input)
     {
-        return juce::jmap(input, -24.0, 0.0, outputMin, outputMax);
+        return juce::jmap(input, -27.0, 3.0, outputMin, outputMax);
     };
     
     responseCurve.startNewSubPath(responseArea.getX(), map(magnitudes.front()));
     
-    for( size_t i = 1; i < magnitudes.size(); ++i )
+    for( size_t i = 0; i < magnitudes.size(); ++i )
     {
         responseCurve.lineTo(responseArea.getX() + i, map(magnitudes[i]));
     }
@@ -275,9 +279,44 @@ void HissComponent::paintSection(juce::Graphics& g)
 void HissComponent::resized()
 {
     auto area = getSectionArea();
-    area.removeFromBottom(area.getHeight() * 0.66f);
+    area.removeFromBottom(area.getHeight() / 2);
     hissRatioSlider.setBounds(area.removeFromLeft(area.getWidth() / 2));
     hissCutoffSlider.setBounds(area);
+    
+    using namespace juce;
+    background = Image(Image::PixelFormat::RGB, getWidth(), getHeight(), true);
+    Graphics g(background);
+    
+    auto graphArea = getLocalBounds();
+    
+    g.setColour(juce::Colours::grey);
+    g.drawRect(graphArea);
+    
+    Array<float> frequencies
+    {
+        600, 700, 800, 900, 1000,
+        2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000
+    };
+    
+    g.setColour(Colours::grey);
+    for (auto f: frequencies )
+    {
+        auto normX = mapFromLog10(f, 500.f, 10000.f) ;
+        g.drawVerticalLine(graphArea.getWidth() * normX,
+                           graphArea.getY(),
+                           graphArea.getHeight());
+    }
+    
+    Array<float> gain
+    {
+        -24.f, -18.f, -12.f, -6.f, 0.f
+    };
+    
+    for ( auto gDb : gain )
+    {
+        auto y = jmap(gDb, -27.f, 3.f, float(graphArea.getHeight()), 0.f);
+        g.drawHorizontalLine(y, 0, graphArea.getWidth());
+    }
 }
 
 void HissComponent::timerCallback()

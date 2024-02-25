@@ -169,6 +169,7 @@ public:
 private:
     void paintSection(juce::Graphics& g) override;
     juce::dsp::IIR::Filter<float> filter;
+    juce:: Image background;
     
     RotarySliderWithLabels  hissThresholdSlider, hissRatioSlider,
                             hissCutoffSlider;
