@@ -19,6 +19,13 @@
 
 using Attachment = juce::AudioProcessorValueTreeState::SliderAttachment;
 
+static const juce::Font getDisplayFont()
+{
+    using namespace juce;
+    static auto typeface = Typeface::createSystemTypefaceFor (BinaryData::RighteousRegular_ttf, BinaryData::RighteousRegular_ttfSize);
+    return Font (typeface);
+}
+
 class SectionComponent   : public juce::Component
 {
 public:
@@ -35,13 +42,20 @@ public:
         g.setColour (juce::Colours::white);
         g.fillRect(bounds.toFloat());
         
-        auto sectionPaddingX = 16;
-        auto sectionPaddingY = 32;
-        
-        bounds.removeFromTop(sectionPaddingY);
+        bounds.removeFromTop(sectionPaddingTop);
         bounds.removeFromRight(sectionPaddingX);
-        bounds.removeFromBottom(sectionPaddingY);
+        bounds.removeFromBottom(sectionPaddingBottom);
         bounds.removeFromLeft(sectionPaddingX);
+        
+        auto titleField = bounds.removeFromTop(36);
+        
+//        g.setColour(juce::Colours::red);
+//        g.drawRect(titleField);
+        
+        g.setFont(getDisplayFont());
+        g.setFont(32);
+        g.setColour (juce::Colours::black);
+        g.drawFittedText(title, titleField, juce::Justification::left, 1);
         
         paintSection(g);
     }
@@ -52,10 +66,11 @@ public:
         
         area.removeFromRight(shadowOffset);
         area.removeFromBottom(shadowOffset);
-        area.removeFromTop(sectionPaddingY);
+        area.removeFromTop(sectionPaddingTop);
         area.removeFromRight(sectionPaddingX);
-        area.removeFromBottom(sectionPaddingY);
+        area.removeFromBottom(sectionPaddingBottom);
         area.removeFromLeft(sectionPaddingX);
+        area.removeFromTop(56);
         
         return area;
     }
@@ -68,9 +83,10 @@ public:
     
 protected:
     PurristAudioProcessor& audioProcessor;
+    juce::String title;
 
 private:
-    int shadowOffset = 10, sectionPaddingX = 16, sectionPaddingY = 32;
+    int shadowOffset = 10, sectionPaddingX = 16, sectionPaddingBottom= 32, sectionPaddingTop = 24;
     juce::DropShadow shadow = juce::DropShadow(juce::Colours::black, 1, juce::Point<int>(shadowOffset, shadowOffset));
     
     virtual void paintSection(juce::Graphics& g) {};
@@ -93,6 +109,7 @@ public:
         for (auto* component : getComponents()) {
             addAndMakeVisible(component);
         }
+        title = "Buzz";
     }
     
     std::vector<juce::Component*> getComponents() override;
@@ -123,6 +140,7 @@ public:
         for (auto* component : getComponents()) {
             addAndMakeVisible(component);
         }
+        title = "Hiss";
     }
     
     void resized() override;
@@ -156,6 +174,7 @@ public:
         for (auto* component : getComponents()) {
             addAndMakeVisible(component);
         }
+        title = "Noise";
     }
     
     std::vector<juce::Component*> getComponents() override;

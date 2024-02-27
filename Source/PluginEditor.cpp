@@ -47,17 +47,18 @@ void PurristAudioProcessorEditor::resized()
     area.removeFromLeft(paddingX);
     
     auto gap = 6;
-    auto sectionWidth = area.getWidth() / 3 - gap * 2 / 3;
+    auto narrowSectionWidth = area.getWidth() * 3 / 10 - gap * 2 / 3;
+    auto wideSectionWidth = area.getWidth() * 4 / 10 - gap * 2 / 3;
     
-    buzzSection.setBounds(area.removeFromLeft(sectionWidth));
-    
-    area.removeFromLeft(gap);
-    
-    hissSection.setBounds(area.removeFromLeft(sectionWidth));
+    buzzSection.setBounds(area.removeFromLeft(narrowSectionWidth));
     
     area.removeFromLeft(gap);
     
-    noiseSection.setBounds(area.removeFromLeft(sectionWidth));
+    hissSection.setBounds(area.removeFromLeft(wideSectionWidth));
+    
+    area.removeFromLeft(gap);
+    
+    noiseSection.setBounds(area.removeFromLeft(narrowSectionWidth));
 }
 
 void BuzzComponent::paintSection(juce::Graphics& g)
@@ -68,15 +69,18 @@ void BuzzComponent::paintSection(juce::Graphics& g)
 void HissComponent::paintSection(juce::Graphics& g)
 {
     auto area = getSectionArea();
+    area.removeFromRight(70);
     
-    auto responseArea = area.removeFromBottom(area.getHeight() / 4);
+    auto responseArea = area.removeFromBottom(area.getHeight() / 3);
     responseCurve.setBounds(responseArea);
 }
 
 void HissComponent::resized()
 {
     auto area = getSectionArea();
-    area.removeFromBottom(area.getHeight() / 2);
+    area.removeFromRight(70);
+    area.removeFromBottom(area.getHeight() / 3 + 24);
+    area.removeFromTop(area.getHeight() / 6);
     hissRatioSlider.setBounds(area.removeFromLeft(area.getWidth() / 2));
     hissCutoffSlider.setBounds(area);
     
