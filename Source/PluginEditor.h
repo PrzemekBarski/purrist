@@ -89,7 +89,7 @@ protected:
     juce::String title;
 
 private:
-    int shadowOffset = 10, sectionPaddingX = 16, sectionPaddingBottom= 32, sectionPaddingTop = 16;
+    int shadowOffset = 5, sectionPaddingX = 16, sectionPaddingBottom= 32, sectionPaddingTop = 16;
     juce::DropShadow shadow = juce::DropShadow(juce::Colours::black, 1, juce::Point<int>(shadowOffset, shadowOffset));
     
     virtual void paintSection(juce::Graphics& g) {};
@@ -215,6 +215,11 @@ private:
     BuzzComponent buzzSection;
     HissComponent hissSection;
     NoiseComponent noiseSection;
+    
+    std::unique_ptr<juce::Drawable> logo, logoShadow;
+    juce::DrawableText pluginLogo, pluginLogoShadow;
+    
+    juce::Rectangle<int> debugRect1, debugRect2;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PurristAudioProcessorEditor)
 };

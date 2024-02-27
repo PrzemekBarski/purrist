@@ -6,7 +6,11 @@
               pluginVST3Category="Dynamics">
   <MAINGROUP id="bOXJYb" name="Purrist">
     <GROUP id="{293F73BD-1395-62FC-5B75-361BD08808B2}" name="Source">
-      <GROUP id="{8BB2E9FC-E309-11EA-65C2-A1282256F942}" name="images"/>
+      <GROUP id="{8BB2E9FC-E309-11EA-65C2-A1282256F942}" name="images">
+        <FILE id="NYZuxU" name="stray-cat-white.svg" compile="0" resource="1"
+              file="Source/images/stray-cat-white.svg"/>
+        <FILE id="XEh90V" name="stray-cat.svg" compile="0" resource="1" file="Source/images/stray-cat.svg"/>
+      </GROUP>
       <GROUP id="{F8E36EC6-061C-C715-08CD-352DA7EFF604}" name="bin">
         <FILE id="XBYadV" name="Righteous-Regular.ttf" compile="0" resource="1"
               file="Source/bin/Righteous-Regular.ttf"/>

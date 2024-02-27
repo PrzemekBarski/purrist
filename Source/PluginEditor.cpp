@@ -15,7 +15,25 @@ PurristAudioProcessorEditor::PurristAudioProcessorEditor (PurristAudioProcessor&
 {
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
+    logoShadow = juce::Drawable::createFromImageData (BinaryData::straycat_svg, BinaryData::straycat_svgSize);
+    logo = juce::Drawable::createFromImageData (BinaryData::straycatwhite_svg, BinaryData::straycatwhite_svgSize);
     
+    pluginLogo.setText("PURRIST");
+    pluginLogo.setColour(juce::Colour(250, 219, 35));
+    pluginLogo.setFont(getDisplayFont(), true);
+    pluginLogo.setJustification(juce::Justification::bottomLeft);
+    pluginLogo.setFontHeight(68);
+    
+    pluginLogoShadow.setText("PURRIST");
+    pluginLogoShadow.setColour(juce::Colours::black);
+    pluginLogoShadow.setFont(getDisplayFont(), true);
+    pluginLogoShadow.setJustification(juce::Justification::bottomLeft);
+    pluginLogoShadow.setFontHeight(68);
+    
+    addAndMakeVisible(logoShadow.get());
+    addAndMakeVisible(logo.get());
+    addAndMakeVisible(pluginLogoShadow);
+    addAndMakeVisible(pluginLogo);
     addAndMakeVisible (buzzSection);
     addAndMakeVisible (hissSection);
     addAndMakeVisible (noiseSection);
@@ -31,6 +49,12 @@ PurristAudioProcessorEditor::~PurristAudioProcessorEditor(){}
 void PurristAudioProcessorEditor::paint (juce::Graphics& g)
 {
     g.fillAll (juce::Colour(79, 85, 117));
+    
+//    g.setColour(juce::Colours::red);
+//    g.drawRect(debugRect1);
+//    
+//    g.setColour(juce::Colours::green);
+//    g.drawRect(debugRect2);
 }
 
 void PurristAudioProcessorEditor::resized()
@@ -38,13 +62,34 @@ void PurristAudioProcessorEditor::resized()
     auto area = getLocalBounds();
     
     int paddingX = 20;
-    int maxHeight = 400;
+    int maxHeight = 460;
     int paddingY = (area.getHeight() - maxHeight) / 2;
     
     area.removeFromTop(paddingY);
     area.removeFromRight(paddingX);
     area.removeFromBottom(paddingY);
     area.removeFromLeft(paddingX);
+    
+    using namespace juce;
+
+    auto header = area.removeFromTop(40);
+    auto logoShadowArea = header.removeFromRight(300);
+    logoShadowArea = logoShadowArea.withY(logoShadowArea.getY() + 5);
+    auto logoArea = logoShadowArea.withPosition(logoShadowArea.getX() - 5, logoShadowArea.getY() - 5);
+    
+    RectanglePlacement logoPlacement {RectanglePlacement::xRight | RectanglePlacement::yBottom};
+    
+    logoShadow->setTransformToFit(logoShadowArea.toFloat(), logoPlacement);
+    logo->setTransformToFit(logoArea.toFloat(), logoPlacement);
+    
+    auto pluginLogoArea = header.removeFromLeft(300).toFloat();
+    pluginLogoArea = pluginLogoArea.withHeight(68).withPosition(pluginLogoArea.getX() - 5, pluginLogoArea.getY() - 15);
+    auto pluginLogoShadowArea = pluginLogoArea.withPosition(pluginLogoArea.getX() + 5, pluginLogoArea.getY() + 5);
+    
+    pluginLogoShadow.setBoundingBox(Parallelogram<float>(pluginLogoShadowArea));
+    pluginLogo.setBoundingBox(Parallelogram<float>(pluginLogoArea));
+    
+    area.removeFromTop(16);
     
     auto gap = 6;
     auto narrowSectionWidth = area.getWidth() * 3 / 10 - gap * 2 / 3;
