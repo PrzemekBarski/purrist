@@ -12,6 +12,20 @@
 
 #include <JuceHeader.h>
 
+static const juce::Font getFont()
+{
+    using namespace juce;
+    static auto typeface = Typeface::createSystemTypefaceFor (BinaryData::WorkSansRegular_ttf, BinaryData::WorkSansRegular_ttfSize);
+    return Font (typeface);
+}
+
+static const juce::Font getMediumFont()
+{
+    using namespace juce;
+    static auto typeface = Typeface::createSystemTypefaceFor (BinaryData::WorkSansSemiBold_ttf, BinaryData::WorkSansSemiBold_ttfSize);
+    return Font (typeface);
+}
+
 struct LookAndFeel : juce::LookAndFeel_V4
 {
     void drawRotarySlider (juce::Graphics&,

@@ -39,12 +39,14 @@ void LookAndFeel::drawRotarySlider(juce::Graphics & g,
         r.setTop(bounds. getY());
         r.setBottom(center.getY() - rswl->getTextHeight());
         
-        g.setFont(rswl->getTextHeight());
+        auto textHeight = width / 8;
+        g.setFont(getFont());
+        g.setFont(textHeight);
         auto text = rswl->getDisplayString();
         auto strWidth = g.getCurrentFont().getStringWidth(text);
-        r.setSize(strWidth, rswl->getTextHeight());
-        r.setCentre(bounds.getCentreX(), bounds.getCentreY() + rswl->getTextHeight());
-        g. setColour (Colours::black);
+        r.setSize(strWidth, textHeight);
+        r.setCentre(bounds.getCentreX(), bounds.getCentreY() + textHeight * 0.75);
+        g.setColour (Colours::black);
         g.drawFittedText(text, r.toNearestInt(), juce::Justification::centred, 1);
     }
 
@@ -101,9 +103,12 @@ void RotarySliderWithLabels::paint(juce::Graphics &g)
     auto sliderBounds = getSliderBounds();
     auto area = getLocalBounds();
     area.removeFromTop(sliderBounds.getHeight());
-    auto label = area.removeFromTop(getLabelTextHeight() * 1.5);
     
-    g.setFont(getLabelTextHeight());
+    auto textHeight = area.getWidth() / 6;
+    auto label = area.removeFromTop(textHeight * 0.8);
+    
+    g.setFont(getMediumFont());
+    g.setFont(textHeight);
     g.setColour (Colours::black);
     g.drawFittedText(param->getName(20), label, juce::Justification::centred, 1);
     

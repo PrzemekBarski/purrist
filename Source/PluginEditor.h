@@ -47,13 +47,16 @@ public:
         bounds.removeFromBottom(sectionPaddingBottom);
         bounds.removeFromLeft(sectionPaddingX);
         
-        auto titleField = bounds.removeFromTop(36);
+        auto titleField = bounds.removeFromTop(48);
+        
+        g.setColour (juce::Colours::black);
+        g.fillRect(bounds.removeFromTop(2));
         
 //        g.setColour(juce::Colours::red);
 //        g.drawRect(titleField);
         
         g.setFont(getDisplayFont());
-        g.setFont(32);
+        g.setFont(42);
         g.setColour (juce::Colours::black);
         g.drawFittedText(title, titleField, juce::Justification::left, 1);
         
@@ -70,7 +73,7 @@ public:
         area.removeFromRight(sectionPaddingX);
         area.removeFromBottom(sectionPaddingBottom);
         area.removeFromLeft(sectionPaddingX);
-        area.removeFromTop(56);
+        area.removeFromTop(64);
         
         return area;
     }
@@ -86,7 +89,7 @@ protected:
     juce::String title;
 
 private:
-    int shadowOffset = 10, sectionPaddingX = 16, sectionPaddingBottom= 32, sectionPaddingTop = 24;
+    int shadowOffset = 10, sectionPaddingX = 16, sectionPaddingBottom= 32, sectionPaddingTop = 16;
     juce::DropShadow shadow = juce::DropShadow(juce::Colours::black, 1, juce::Point<int>(shadowOffset, shadowOffset));
     
     virtual void paintSection(juce::Graphics& g) {};
@@ -131,7 +134,7 @@ public:
     HissComponent(PurristAudioProcessor& p)
         : SectionComponent(p), responseCurve(p),
     hissThresholdSlider(*audioProcessor.apvts.getParameter("hiss_threshold"), "dB"),
-    hissRatioSlider(*audioProcessor.apvts.getParameter("hiss_ratio"), ":1"),
+    hissRatioSlider(*audioProcessor.apvts.getParameter("hiss_ratio"), ": 1"),
     hissCutoffSlider(*audioProcessor.apvts.getParameter("hiss_cutoff"), "Hz"),
     hissThresholdSliderAttachment(audioProcessor.apvts, "hiss_threshold", hissThresholdSlider),
     hissRatioSliderAttachment(audioProcessor.apvts, "hiss_ratio", hissRatioSlider),

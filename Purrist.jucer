@@ -9,12 +9,10 @@
       <GROUP id="{F8E36EC6-061C-C715-08CD-352DA7EFF604}" name="bin">
         <FILE id="OfPTys" name="RighteousRegular.ttf" compile="0" resource="1"
               file="../../../Downloads/RighteousRegular.ttf"/>
-        <FILE id="HeiJx1" name="TitilliumWebBold.ttf" compile="0" resource="1"
-              file="../../../Downloads/TitilliumWebBold.ttf"/>
-        <FILE id="skOq3O" name="TitilliumWebRegular.ttf" compile="0" resource="1"
-              file="../../../Downloads/TitilliumWebRegular.ttf"/>
-        <FILE id="UswZXS" name="TitilliumWebSemiBold.ttf" compile="0" resource="1"
-              file="../../../Downloads/TitilliumWebSemiBold.ttf"/>
+        <FILE id="hL4Z26" name="WorkSans-Regular.ttf" compile="0" resource="1"
+              file="../../../Downloads/Work_Sans/static/WorkSans-Regular.ttf"/>
+        <FILE id="cQIeip" name="WorkSans-SemiBold.ttf" compile="0" resource="1"
+              file="../../../Downloads/Work_Sans/static/WorkSans-SemiBold.ttf"/>
       </GROUP>
       <GROUP id="{4B038A85-B6BB-BFAB-7764-12CC874091E9}" name="modules">
         <FILE id="qbQDAz" name="BuzzGate.cpp" compile="1" resource="0" file="Source/BuzzGate.cpp"/>
