@@ -6,7 +6,6 @@
   ==============================================================================
 */
 
-#include "PluginProcessor.h"
 #include "PluginEditor.h"
 
 //==============================================================================
@@ -22,13 +21,13 @@ PurristAudioProcessorEditor::PurristAudioProcessorEditor (PurristAudioProcessor&
     pluginLogo.setColour(juce::Colour(250, 219, 35));
     pluginLogo.setFont(getDisplayFont(), true);
     pluginLogo.setJustification(juce::Justification::bottomLeft);
-    pluginLogo.setFontHeight(68);
+    pluginLogo.setFontHeight(82);
     
     pluginLogoShadow.setText("PURRIST");
     pluginLogoShadow.setColour(juce::Colours::black);
     pluginLogoShadow.setFont(getDisplayFont(), true);
     pluginLogoShadow.setJustification(juce::Justification::bottomLeft);
-    pluginLogoShadow.setFontHeight(68);
+    pluginLogoShadow.setFontHeight(82);
     
     addAndMakeVisible(logoShadow.get());
     addAndMakeVisible(logo.get());
@@ -38,8 +37,8 @@ PurristAudioProcessorEditor::PurristAudioProcessorEditor (PurristAudioProcessor&
     addAndMakeVisible (hissSection);
     addAndMakeVisible (noiseSection);
     setResizable (true, true);
-    setResizeLimits(1024, 500, 9999, 9999);
-    setSize (1024, 500);
+    setResizeLimits(920, 540, 9999, 9999);
+    setSize (1024, 540);
 }
 
 PurristAudioProcessorEditor::~PurristAudioProcessorEditor(){}
@@ -50,11 +49,11 @@ void PurristAudioProcessorEditor::paint (juce::Graphics& g)
 {
     g.fillAll (juce::Colour(79, 85, 117));
     
-//    g.setColour(juce::Colours::red);
-//    g.drawRect(debugRect1);
-//    
-//    g.setColour(juce::Colours::green);
-//    g.drawRect(debugRect2);
+    g.setColour(juce::Colours::red);
+    g.drawRect(debugRect1);
+    
+    g.setColour(juce::Colours::green);
+    g.drawRect(debugRect2);
 }
 
 void PurristAudioProcessorEditor::resized()
@@ -62,7 +61,7 @@ void PurristAudioProcessorEditor::resized()
     auto area = getLocalBounds();
     
     int paddingX = 20;
-    int maxHeight = 460;
+    int maxHeight = 480;
     int paddingY = (area.getHeight() - maxHeight) / 2;
     
     area.removeFromTop(paddingY);
@@ -72,7 +71,7 @@ void PurristAudioProcessorEditor::resized()
     
     using namespace juce;
 
-    auto header = area.removeFromTop(40);
+    auto header = area.removeFromTop(24);
     auto logoShadowArea = header.removeFromRight(300);
     logoShadowArea = logoShadowArea.withY(logoShadowArea.getY() + 5);
     auto logoArea = logoShadowArea.withPosition(logoShadowArea.getX() - 5, logoShadowArea.getY() - 5);
@@ -82,8 +81,12 @@ void PurristAudioProcessorEditor::resized()
     logoShadow->setTransformToFit(logoShadowArea.toFloat(), logoPlacement);
     logo->setTransformToFit(logoArea.toFloat(), logoPlacement);
     
+    auto pluginLogoHeight = header.getHeight() * 1.75f;
+    auto pluginLogoOffset = header.getHeight() * 0.4f;
+    
     auto pluginLogoArea = header.removeFromLeft(300).toFloat();
-    pluginLogoArea = pluginLogoArea.withHeight(68).withPosition(pluginLogoArea.getX() - 5, pluginLogoArea.getY() - 15);
+    pluginLogoArea = pluginLogoArea.withHeight(pluginLogoHeight)
+        .withPosition(pluginLogoArea.getX() - 5, pluginLogoArea.getY() - pluginLogoOffset);
     auto pluginLogoShadowArea = pluginLogoArea.withPosition(pluginLogoArea.getX() + 5, pluginLogoArea.getY() + 5);
     
     pluginLogoShadow.setBoundingBox(Parallelogram<float>(pluginLogoShadowArea));
@@ -114,7 +117,6 @@ void BuzzComponent::paintSection(juce::Graphics& g)
 void HissComponent::paintSection(juce::Graphics& g)
 {
     auto area = getSectionArea();
-    area.removeFromRight(70);
     
     auto responseArea = area.removeFromBottom(area.getHeight() / 3);
     responseCurve.setBounds(responseArea);
@@ -123,9 +125,10 @@ void HissComponent::paintSection(juce::Graphics& g)
 void HissComponent::resized()
 {
     auto area = getSectionArea();
-    area.removeFromRight(70);
     area.removeFromBottom(area.getHeight() / 3 + 24);
-    area.removeFromTop(area.getHeight() / 6);
+//    area.removeFromBottom(area.getHeight() / 2.3);
+    hissThresholdSlider.setBounds(area.removeFromBottom(area.getHeight() / 2.3));
+//    area.removeFromTop(area.getHeight() / 16);
     hissRatioSlider.setBounds(area.removeFromLeft(area.getWidth() / 2));
     hissCutoffSlider.setBounds(area);
     
@@ -143,7 +146,6 @@ std::vector<juce::Component*> BuzzComponent::getComponents()
 
 std::vector<juce::Component*> HissComponent::getComponents()
 {
-    DBG("child getComponents");
     return
     {
         &hissThresholdSlider,

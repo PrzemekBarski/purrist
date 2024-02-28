@@ -10,8 +10,8 @@
 
 #pragma once
 
-#include "PluginProcessor.h"
 #include <JuceHeader.h>
+#include "PluginProcessor.h"
 
 class ResponseCurve   : public juce::Component,
 juce::Timer

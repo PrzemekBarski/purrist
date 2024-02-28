@@ -104,7 +104,7 @@ void RotarySliderWithLabels::paint(juce::Graphics &g)
     auto area = getLocalBounds();
     area.removeFromTop(sliderBounds.getHeight());
     
-    auto textHeight = area.getWidth() / 6;
+    auto textHeight = sliderBounds.getWidth() / 6;
     auto label = area.removeFromTop(textHeight * 0.8);
     
     g.setFont(getMediumFont());
@@ -122,8 +122,8 @@ void RotarySliderWithLabels::paint(juce::Graphics &g)
                                 sliderBounds.getWidth(),
                                 sliderBounds.getHeight(),
                                 jmap(getValue(),
-                                range.getStart(),
-                                range.getEnd(), 0.0, 1.0),
+                                     range.getStart(),
+                                     range.getEnd(), 0.0, 1.0),
                                 startAngle,
                                 endAngle,
                                 *this);
@@ -177,4 +177,111 @@ juce::String RotarySliderWithLabels::getDisplayString() const
     }
     
     return str;
+}
+
+void RMSHorizontalSlider::timerCallback()
+{
+    repaint();
+}
+
+void RMSHorizontalSlider::paint(juce::Graphics &g)
+{
+    using namespace juce;
+    
+    auto bounds = getLocalBounds();
+    auto range = getRange();;
+    int thumbRadius = lnf.getSliderThumbRadius(*this);
+    double start = bounds.getX() + thumbRadius * 0.5;
+    double end = bounds.getWidth() - thumbRadius * 0.5;
+    float rms = Decibels::gainToDecibels(inputRMSMeter.getInputRMS());
+    
+    lnf.drawRMSSlider(g,
+                                      bounds.getX(),
+                                      bounds.getY(),
+                                      bounds.getWidth(),
+                                      bounds.getHeight(),
+                                      jmap(getValue(),
+                                           range.getStart(),
+                                           range.getEnd(), start, end),
+                                      bounds.getX(),
+                                      bounds.getX() + bounds.getWidth(),
+                                      getSliderStyle(),
+                                      *this, rms);
+}
+
+void LookAndFeel::drawRMSSlider (juce::Graphics& g, int x, int y, int width, int height,
+                                       float sliderPos,
+                                       float minSliderPos,
+                                       float maxSliderPos,
+                                       const juce::Slider::SliderStyle style,
+                                        juce::Slider& slider,
+                                        float rms)
+{
+    using namespace juce;
+    float trackWidth = 25;
+    Rectangle<int> outline;
+    Rectangle<int> levelMeter;
+    int thumbRadius = getSliderThumbRadius(slider);
+    auto range = slider.getNormalisableRange().getRange();
+    auto rmsValue = jmap(rms,
+                         float(range.getStart()),
+                         float(range.getEnd()),
+                         float(x + thumbRadius / 2),
+                         float(width + thumbRadius / 2));
+    
+    rmsValue = rmsValue > 0 ? rmsValue : 0;
+    
+//    DBG(range.getStart());
+//    DBG(range.getEnd());
+//    DBG(rms);
+//    DBG(rmsValue);
+    
+    auto pointerColour = slider.findColour (Slider::thumbColourId);
+    
+    if (slider.isHorizontal())
+    {
+        int trackY = (height - trackWidth) / 2;
+        outline.setX(x);
+        outline.setY(trackY);
+        outline.setHeight(trackWidth);
+        outline.setWidth(width);
+        
+        levelMeter.setX(x + thumbRadius / 2);
+        levelMeter.setY(trackY + thumbRadius / 2);
+        levelMeter.setHeight(trackWidth - thumbRadius);
+        levelMeter.setWidth(rmsValue);
+        
+        drawPointer (g, sliderPos - thumbRadius / 2,
+                     trackY - thumbRadius,
+                     thumbRadius, pointerColour, 2);
+    }
+    else
+    {
+        drawPointer (g, jmax (0.0f, (float) x + (float) width * 0.5f - trackWidth),
+                     sliderPos - thumbRadius,
+                     thumbRadius, pointerColour, 1);
+    }
+    
+    g.setColour(juce::Colours::black);
+    g.drawRect(outline, 2);
+    g.fillRect(levelMeter);
+}
+
+void LookAndFeel::drawPointer (juce::Graphics& g, const float x, const float y, const float diameter,
+                                  const juce::Colour& colour, const int direction)
+{
+    using namespace juce;
+    
+    Path p;
+    p.startNewSubPath (x + diameter * 0.5f, y);
+    p.lineTo (x + diameter, y + diameter * 0.6f);
+    p.lineTo (x + diameter, y + diameter);
+    p.lineTo (x, y + diameter);
+    p.lineTo (x, y + diameter * 0.6f);
+    p.closeSubPath();
+
+    p.applyTransform (AffineTransform::rotation ((float) direction * MathConstants<float>::halfPi,
+                                                 x + diameter * 0.5f, y + diameter * 0.5f));
+    g.setColour (colour);
+    g.fillPath (p);
 }

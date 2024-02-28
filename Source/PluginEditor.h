@@ -47,7 +47,7 @@ public:
         bounds.removeFromBottom(sectionPaddingBottom);
         bounds.removeFromLeft(sectionPaddingX);
         
-        auto titleField = bounds.removeFromTop(48);
+        auto titleField = bounds.removeFromTop(titleSize * 1.15f);
         
         g.setColour (juce::Colours::black);
         g.fillRect(bounds.removeFromTop(2));
@@ -56,7 +56,7 @@ public:
 //        g.drawRect(titleField);
         
         g.setFont(getDisplayFont());
-        g.setFont(42);
+        g.setFont(titleSize);
         g.setColour (juce::Colours::black);
         g.drawFittedText(title, titleField, juce::Justification::left, 1);
         
@@ -73,7 +73,7 @@ public:
         area.removeFromRight(sectionPaddingX);
         area.removeFromBottom(sectionPaddingBottom);
         area.removeFromLeft(sectionPaddingX);
-        area.removeFromTop(64);
+        area.removeFromTop(titleSize * 1.15f + 16);
         
         return area;
     }
@@ -89,7 +89,7 @@ protected:
     juce::String title;
 
 private:
-    int shadowOffset = 5, sectionPaddingX = 16, sectionPaddingBottom= 32, sectionPaddingTop = 16;
+    int shadowOffset = 5, sectionPaddingX = 24, sectionPaddingBottom= 32, sectionPaddingTop = 16, titleSize = 32;
     juce::DropShadow shadow = juce::DropShadow(juce::Colours::black, 1, juce::Point<int>(shadowOffset, shadowOffset));
     
     virtual void paintSection(juce::Graphics& g) {};
@@ -133,9 +133,9 @@ class HissComponent   : public SectionComponent
 public:
     HissComponent(PurristAudioProcessor& p)
         : SectionComponent(p), responseCurve(p),
-    hissThresholdSlider(*audioProcessor.apvts.getParameter("hiss_threshold"), "dB"),
     hissRatioSlider(*audioProcessor.apvts.getParameter("hiss_ratio"), ": 1"),
     hissCutoffSlider(*audioProcessor.apvts.getParameter("hiss_cutoff"), "Hz"),
+    hissThresholdSlider(*audioProcessor.apvts.getParameter("hiss_threshold"), p.chain[0].get<ChainPositions::hissGate>()),
     hissThresholdSliderAttachment(audioProcessor.apvts, "hiss_threshold", hissThresholdSlider),
     hissRatioSliderAttachment(audioProcessor.apvts, "hiss_ratio", hissRatioSlider),
     hissCutoffSliderAttachment(audioProcessor.apvts, "hiss_cutoff", hissCutoffSlider)
@@ -153,8 +153,9 @@ private:
     
     ResponseCurve responseCurve;
     
-    RotarySliderWithLabels  hissThresholdSlider, hissRatioSlider,
-                            hissCutoffSlider;
+    RotarySliderWithLabels  hissRatioSlider, hissCutoffSlider;
+    
+    RMSHorizontalSlider hissThresholdSlider;
     
     Attachment  hissThresholdSliderAttachment, hissRatioSliderAttachment,
                 hissCutoffSliderAttachment;

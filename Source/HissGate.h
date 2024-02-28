@@ -11,16 +11,17 @@
 #pragma once
 
 #include <JuceHeader.h>
+#include "InputRMSMeter.h"
 
 //==============================================================================
 /*
 */
 template <typename SampleType>
-class HissGate
+class HissGate  :  public InputRMSMeter<SampleType>
 {
 public:
     HissGate();
-//    ~BuzzGate() override;
+//    ~HissGate() override;
     
     //==============================================================================
     /** Sets the threshold in dB of the noise-gate.*/
@@ -37,7 +38,7 @@ public:
     
     void setCutoff (float newCutoff);
     
-    float getCurrentGain(int channel);
+    float getCurrentGain();
 
     //==============================================================================
     /** Initialises the processor. */
@@ -88,7 +89,7 @@ private:
 
     double sampleRate = 44100.0;
     SampleType thresholddB = -100, ratio = 10.0, attackTime = 1.0, releaseTime = 100.0, frequency = 2000.f;
-    juce::Atomic<SampleType> currentGain = 0.f;
+    juce::Atomic<float> currentGain = 0.f;
     
     juce::dsp::IIR::Filter<SampleType> hissFilter[2];
     

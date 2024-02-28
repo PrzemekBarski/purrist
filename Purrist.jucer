@@ -26,6 +26,7 @@
         <FILE id="Wb8IYh" name="GUI.h" compile="0" resource="0" file="Source/GUI.h"/>
         <FILE id="osIc0x" name="HissGate.cpp" compile="1" resource="0" file="Source/HissGate.cpp"/>
         <FILE id="xwHTQl" name="HissGate.h" compile="0" resource="0" file="Source/HissGate.h"/>
+        <FILE id="S4HnJn" name="InputRMSMeter.h" compile="0" resource="0" file="Source/InputRMSMeter.h"/>
         <FILE id="qPiX7N" name="ResponseCurve.cpp" compile="1" resource="0"
               file="Source/ResponseCurve.cpp"/>
         <FILE id="jOG8vX" name="ResponseCurve.h" compile="0" resource="0" file="Source/ResponseCurve.h"/>
