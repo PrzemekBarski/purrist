@@ -125,10 +125,12 @@ void HissComponent::paintSection(juce::Graphics& g)
 void HissComponent::resized()
 {
     auto area = getSectionArea();
-    area.removeFromBottom(area.getHeight() / 3 + 24);
-//    area.removeFromBottom(area.getHeight() / 2.3);
-    hissThresholdSlider.setBounds(area.removeFromBottom(area.getHeight() / 2.3));
-//    area.removeFromTop(area.getHeight() / 16);
+    area.removeFromBottom(area.getHeight() / 3 + 18);
+
+    hissThresholdSlider.setBounds(area.removeFromBottom(80));
+    
+    area.removeFromBottom(18);
+    
     hissRatioSlider.setBounds(area.removeFromLeft(area.getWidth() / 2));
     hissCutoffSlider.setBounds(area);
     

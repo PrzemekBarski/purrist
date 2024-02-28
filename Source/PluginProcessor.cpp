@@ -259,7 +259,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout PurristAudioProcessor::creat
         std::make_unique<juce::AudioParameterFloat>(
             juce::ParameterID("buzz_threshold", 1),
             "Threshold",
-            juce::NormalisableRange<float>(-96.f, 12.f, 0.5f, 1.f),
+            juce::NormalisableRange<float>(-96.f, 12.f, 0.1f, 1.f),
             -42.f
         )
     );
@@ -290,7 +290,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout PurristAudioProcessor::creat
         std::make_unique<juce::AudioParameterFloat>(
             juce::ParameterID("hiss_threshold", 1),
             "Threshold",
-            juce::NormalisableRange<float>(-96.f, 12.f, 0.5f, 1.f),
+            juce::NormalisableRange<float>(-96.f, 12.f, 0.1f, 1.f),
             -48.f
         )
     );
@@ -317,7 +317,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout PurristAudioProcessor::creat
         std::make_unique<juce::AudioParameterFloat>(
             juce::ParameterID("noise_threshold", 1),
             "Threshold",
-            juce::NormalisableRange<float>(-96.f, 12.f, 0.5f, 1.f),
+            juce::NormalisableRange<float>(-96.f, 12.f, 0.1f, 1.f),
             -54.f
         )
     );
