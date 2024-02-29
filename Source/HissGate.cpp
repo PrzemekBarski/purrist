@@ -104,7 +104,9 @@ SampleType HissGate<SampleType>::processSample (int channel, SampleType sample)
     
     // RMS ballistics filter
     auto env = RMSFilter.processSample (channel, sample);
-    this->setInputRMS(float(env));
+    
+    if (!channel)
+        this->setInputRMS(float(env));
     // Ballistics filter
     env = envelopeFilter.processSample (channel, env);
     

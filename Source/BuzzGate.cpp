@@ -72,6 +72,12 @@ void BuzzGate<SampleType>::setFrequencyID (int newFrequencyID)
     update();
 }
 
+template <typename SampleType>
+float BuzzGate<SampleType>::getGainReduction ()
+{
+    return gainReduction.get();
+}
+
 //==============================================================================
 template <typename SampleType>
 void BuzzGate<SampleType>::prepare (const juce::dsp::ProcessSpec& spec)
@@ -126,20 +132,25 @@ SampleType BuzzGate<SampleType>::processSample (int channel, SampleType sample)
     
     // RMS ballistics filter
     auto env = RMSFilter.processSample (channel, sample);
+    
+    if (!channel)
+        this->setInputRMS(float(env));
 
     // Ballistics filter
     env = envelopeFilter.processSample (channel, env);
     
+    auto minGain = juce::Decibels::decibelsToGain(static_cast<SampleType> (-24.0));
     auto gain = (env > threshold) ? static_cast<SampleType> (1.0)
                                   : std::pow (env * thresholdInverse, currentRatio - static_cast<SampleType> (1.0));
+    gain = std::max(gain, minGain);
+    gainReduction.set(juce::Decibels::gainToDecibels(gain));
     
-    auto combGain = 1 - std::max((float)gain, 0.2f);
+    auto combGain = 1 - gain;
     modifiedSample = (sample + delayedSample * combGain) * (1 - 0.3f * combGain);
     
-    auto filterGain = gain ? gain : 0.001f;
     int buzzFilterFreq = 50;
     for (int i = 0; i < 6; i++) {
-        *buzzFilter[channel][i].coefficients = juce::dsp::IIR::ArrayCoefficients<float>::makePeakFilter(sampleRate, (float)buzzFilterFreq, 10000, filterGain);
+        *buzzFilter[channel][i].coefficients = juce::dsp::IIR::ArrayCoefficients<float>::makePeakFilter(sampleRate, (float)buzzFilterFreq, 10000, gain);
         modifiedSample = buzzFilter[channel][i].processSample(modifiedSample);
         buzzFilterFreq += 50;
     }

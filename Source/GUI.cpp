@@ -24,7 +24,7 @@ void LookAndFeel::drawRotarySlider(juce::Graphics & g,
     auto outline = slider.findColour (Slider::rotarySliderOutlineColourId);
     auto fill    = slider.findColour (Slider::rotarySliderFillColourId);
 
-    auto bounds = Rectangle<int> (x, y, width, height).toFloat().reduced (10);
+    auto bounds = Rectangle<int> (x, y, width, height).toFloat().reduced (6);
     
 //    g.setColour(juce::Colours::black);
 //    g.drawRect(bounds);
@@ -179,56 +179,66 @@ juce::String RotarySliderWithLabels::getDisplayString() const
     return str;
 }
 
-void RMSHorizontalSlider::timerCallback()
+void RMSSlider::timerCallback()
 {
     repaint();
 }
 
-void RMSHorizontalSlider::paint(juce::Graphics &g)
+void RMSSlider::paint(juce::Graphics &g)
 {
     using namespace juce;
     
     auto bounds = getLocalBounds();
-    auto range = getRange();;
+    auto range = getRange();
     int thumbRadius = lnf.getSliderThumbRadius(*this);
-    int trackWidth = 32;
-    int thumbWidth = lnf.getSliderThumbRadius(*this);
-    double start = bounds.getX() + thumbRadius * 0.5;
-    double end = bounds.getWidth() - thumbRadius * 0.5;
+    auto textHeight = 21;
+    int trackWidth = isHorizontal() ? 32 : 44;
+    double start = isHorizontal() ?
+                    bounds.getX() + thumbRadius / 2 :
+                    bounds.getHeight() - textHeight - 8 - thumbRadius / 2;
+    double end = (isHorizontal() ?
+                  bounds.getWidth() - thumbRadius / 2 :
+                  bounds.getY() + textHeight + 8 + thumbRadius / 2);
     float rms = Decibels::gainToDecibels(inputRMSMeter.getInputRMS());
+    
     String valueText = String(getValue(), 1, false);
     valueText << " dB";
-    
-    auto textHeight = 21;
+
     Rectangle<int> label, value;
     
     label.setX(bounds.getX());
-    label.setY(bounds.getY() + trackWidth + thumbWidth + 4);
+    label.setY(isHorizontal() ?
+               (bounds.getY() + trackWidth + thumbRadius + 4) :
+               (bounds.getHeight() - textHeight));
     label.setHeight(textHeight);
-    label.setWidth(bounds.getWidth() / 2);
-    value = label.withX(bounds.getX() + bounds.getWidth() / 2);
+    label.setWidth(isHorizontal() ?
+                   (bounds.getWidth() / 2) :
+                   bounds.getWidth());
+    value = isHorizontal() ?
+            label.withX(bounds.getX() + bounds.getWidth() / 2) :
+            label.withPosition(bounds.getWidth() - label.getWidth(), 0);
     
     g.setFont(getMediumFont());
     g.setFont(textHeight);
     g.setColour (Colours::black);
-    g.drawFittedText(param->getName(20), label, juce::Justification::topLeft, 1);
+    g.drawFittedText(param->getName(20), label, isHorizontal() ? Justification::topLeft : Justification::centredRight, 1);
     g.setFont(getFont());
     g.setFont(18);
-    g.drawFittedText(valueText, value, juce::Justification::centredRight, 1);
+    g.drawFittedText(valueText, value, Justification::centredRight, 1);
     
 //    g.setColour(juce::Colours::red);
 //    g.drawRect(value);
     
     lnf.drawRMSSlider(g,
-                    bounds.getX(),
-                    bounds.getY(),
-                    bounds.getWidth(),
-                    trackWidth + thumbWidth,
+                    isHorizontal() ? bounds.getX() : bounds.getWidth() - trackWidth - thumbRadius,
+                    isHorizontal() ? bounds.getY() : bounds.getY() + textHeight + 8,
+                    isHorizontal() ? bounds.getWidth() : trackWidth + thumbRadius,
+                    isHorizontal() ? trackWidth + thumbRadius : bounds.getHeight() - textHeight * 2 - 16,
                     jmap(getValue(),
                         range.getStart(),
                         range.getEnd(), start, end),
-                    bounds.getX(),
-                    bounds.getX() + bounds.getWidth(),
+                    isHorizontal() ? bounds.getX() : bounds.getY() + bounds.getHeight(),
+                    isHorizontal() ? bounds.getX() + bounds.getWidth() : bounds.getY(),
                     getSliderStyle(),
                     *this, rms);
 }
@@ -245,40 +255,49 @@ void LookAndFeel::drawRMSSlider (juce::Graphics& g, int x, int y, int width, int
     Rectangle<int> outline;
     Rectangle<int> levelMeter;
     int thumbRadius = getSliderThumbRadius(slider);
-    float trackWidth = height - thumbRadius;
+    float trackWidth = slider.isHorizontal() ? height - thumbRadius : width - thumbRadius;
     float trackLength = slider.isHorizontal() ? width : height;
     auto range = slider.getNormalisableRange().getRange();
     auto rmsValue = jmap(rms,
                          float(range.getStart()),
                          float(range.getEnd()),
-                         float(x + thumbRadius / 2),
-                         float(width + thumbRadius / 2));
-    
+                         float(slider.isHorizontal() ? thumbRadius / 2 : thumbRadius / 2),
+                         float(slider.isHorizontal() ? width + thumbRadius / 2 : trackLength - thumbRadius / 2));
+        
     rmsValue = rmsValue > 0 ? rmsValue : 0;
     
     auto pointerColour = slider.findColour (Slider::thumbColourId);
     
     if (slider.isHorizontal())
     {
-        int trackY = thumbRadius;
         outline.setX(x);
-        outline.setY(trackY);
+        outline.setY(thumbRadius);
         outline.setHeight(trackWidth);
-        outline.setWidth(width);
+        outline.setWidth(trackLength);
         
         levelMeter.setX(x + thumbRadius / 2);
-        levelMeter.setY(trackY + thumbRadius / 2);
+        levelMeter.setY(thumbRadius + thumbRadius / 2);
         levelMeter.setHeight(trackWidth - thumbRadius);
         levelMeter.setWidth(rmsValue);
         
         drawPointer (g, sliderPos - thumbRadius / 2,
-                     trackY - thumbRadius,
+                     0,
                      thumbRadius, pointerColour, 2);
     }
     else
     {
-        drawPointer (g, jmax (0.0f, (float) x + (float) width * 0.5f - trackWidth),
-                     sliderPos - thumbRadius,
+        outline.setX(x + width - trackWidth);
+        outline.setY(y);
+        outline.setHeight(trackLength);
+        outline.setWidth(trackWidth);
+        
+        levelMeter.setX(x + width - trackWidth + thumbRadius / 2);
+        levelMeter.setY(y + trackLength - rmsValue - thumbRadius / 2);
+        levelMeter.setHeight(rmsValue);
+        levelMeter.setWidth(trackWidth - thumbRadius);
+        
+        drawPointer (g, x,
+                     sliderPos - thumbRadius / 2,
                      thumbRadius, pointerColour, 1);
     }
     
@@ -287,17 +306,32 @@ void LookAndFeel::drawRMSSlider (juce::Graphics& g, int x, int y, int width, int
     
     for (float dbBar = -84; dbBar <= 0; dbBar += 12) {
         auto bar = jmap(dbBar, -96.f, 12.f, trackLength - thumbRadius, 0.f);
-        bar = width - thumbRadius / 2 - bar;
+        bar = slider.isHorizontal() ?
+                trackLength - thumbRadius / 2 - bar :
+                bar + y + thumbRadius / 2;
         g.setColour(juce::Colours::black);
-        g.drawVerticalLine(bar, thumbRadius, thumbRadius * 1.5);
-        g.drawVerticalLine(bar, trackWidth + thumbRadius / 2, trackWidth + thumbRadius);
         
         Rectangle<int> label;
         
-        label.setX(bar - 15);
-        label.setY(thumbRadius * 1.5);
-        label.setWidth(30);
-        label.setHeight(trackWidth - thumbRadius);
+        if (slider.isHorizontal())
+        {
+            g.drawVerticalLine(bar, thumbRadius, thumbRadius * 1.5);
+            g.drawVerticalLine(bar, trackWidth + thumbRadius / 2, trackWidth + thumbRadius);
+            
+            label.setX(bar - 15);
+            label.setY(thumbRadius * 1.5);
+            label.setWidth(30);
+            label.setHeight(trackWidth - thumbRadius);
+        } else
+        {
+            g.drawHorizontalLine(bar, x + width - thumbRadius / 2 , x + width);
+            g.drawHorizontalLine(bar, x + width - trackWidth, x + width - trackWidth + thumbRadius / 2);
+            
+            label.setX(x + width - trackWidth);
+            label.setY(bar - (trackWidth - thumbRadius) / 2);
+            label.setWidth(trackWidth);
+            label.setHeight(trackWidth - thumbRadius);
+        }
         
         g.setFont(getFont());
         g.drawFittedText(String(int(dbBar)), label, Justification::centred, 1);

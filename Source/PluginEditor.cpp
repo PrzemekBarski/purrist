@@ -95,8 +95,8 @@ void PurristAudioProcessorEditor::resized()
     area.removeFromTop(16);
     
     auto gap = 6;
-    auto narrowSectionWidth = area.getWidth() * 3 / 10 - gap * 2 / 3;
-    auto wideSectionWidth = area.getWidth() * 4 / 10 - gap * 2 / 3;
+    auto narrowSectionWidth = area.getWidth() * 4 / 13 - gap * 2 / 3;
+    auto wideSectionWidth = area.getWidth() * 5 / 13 - gap * 2 / 3;
     
     buzzSection.setBounds(area.removeFromLeft(narrowSectionWidth));
     
@@ -111,7 +111,18 @@ void PurristAudioProcessorEditor::resized()
 
 void BuzzComponent::paintSection(juce::Graphics& g)
 {
-    // area.removeFromRight(area.getWidth() / 2);
+    auto area = getSectionArea();
+    int thresholdSliderWidth = juce::jmin(80, 120);
+    auto thresholdSliderBounds = area.removeFromRight(80).withLeft(area.getRight() - 20);
+    
+    g.setColour(juce::Colours::red);
+    g.drawRect(thresholdSliderBounds);
+    
+    area.removeFromBottom(48);
+    
+    buzzRatioSlider.setBounds(area.removeFromBottom(area.getHeight() / 3));
+    
+    buzzThresholdSlider.setBounds(thresholdSliderBounds);
 }
 
 void HissComponent::paintSection(juce::Graphics& g)

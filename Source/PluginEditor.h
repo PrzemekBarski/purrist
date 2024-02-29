@@ -102,9 +102,11 @@ class BuzzComponent   : public SectionComponent
 public:
     BuzzComponent(PurristAudioProcessor& p)
         : SectionComponent(p),
-    buzzThresholdSlider(*audioProcessor.apvts.getParameter("buzz_threshold"), "dB"),
     buzzRatioSlider(*audioProcessor.apvts.getParameter("buzz_ratio"), ":1"),
     buzzFreqSlider(*audioProcessor.apvts.getParameter("buzz_frequency"), ""),
+    buzzThresholdSlider(*audioProcessor.apvts.getParameter("buzz_threshold"),
+                        juce::Slider::SliderStyle::LinearVertical,
+                        p.chain[0].get<ChainPositions::buzzGate>()),
     buzzThresholdSliderAttachment(audioProcessor.apvts, "buzz_threshold", buzzThresholdSlider),
     buzzRatioSliderAttachment(audioProcessor.apvts, "buzz_ratio", buzzRatioSlider),
     buzzFreqSliderAttachment(audioProcessor.apvts, "buzz_frequency", buzzFreqSlider)
@@ -119,8 +121,9 @@ public:
 private:
     void paintSection(juce::Graphics& g) override;
     
-    RotarySliderWithLabels  buzzThresholdSlider, buzzRatioSlider,
-                            buzzFreqSlider;
+    RotarySliderWithLabels  buzzRatioSlider, buzzFreqSlider;
+    
+    RMSSlider buzzThresholdSlider;
     
     Attachment  buzzThresholdSliderAttachment, buzzRatioSliderAttachment,
                 buzzFreqSliderAttachment;
@@ -135,7 +138,9 @@ public:
         : SectionComponent(p), responseCurve(p),
     hissRatioSlider(*audioProcessor.apvts.getParameter("hiss_ratio"), ": 1"),
     hissCutoffSlider(*audioProcessor.apvts.getParameter("hiss_cutoff"), "Hz"),
-    hissThresholdSlider(*audioProcessor.apvts.getParameter("hiss_threshold"), p.chain[0].get<ChainPositions::hissGate>()),
+    hissThresholdSlider(*audioProcessor.apvts.getParameter("hiss_threshold"),
+                        juce::Slider::SliderStyle::LinearHorizontal,
+                        p.chain[0].get<ChainPositions::hissGate>()),
     hissThresholdSliderAttachment(audioProcessor.apvts, "hiss_threshold", hissThresholdSlider),
     hissRatioSliderAttachment(audioProcessor.apvts, "hiss_ratio", hissRatioSlider),
     hissCutoffSliderAttachment(audioProcessor.apvts, "hiss_cutoff", hissCutoffSlider)
@@ -155,7 +160,7 @@ private:
     
     RotarySliderWithLabels  hissRatioSlider, hissCutoffSlider;
     
-    RMSHorizontalSlider hissThresholdSlider;
+    RMSSlider hissThresholdSlider;
     
     Attachment  hissThresholdSliderAttachment, hissRatioSliderAttachment,
                 hissCutoffSliderAttachment;

@@ -74,11 +74,11 @@ private:
     juce::String suffix;
 };
 
-struct RMSHorizontalSlider : juce::Slider,
+struct RMSSlider : juce::Slider,
 juce::Timer
 {
-    RMSHorizontalSlider(juce::RangedAudioParameter& param, InputRMSMeter<float>& inputMeter) :
-        juce::Slider(juce::Slider::SliderStyle::LinearHorizontal, juce::Slider::TextEntryBoxPosition::NoTextBox),
+    RMSSlider(juce::RangedAudioParameter& param, juce::Slider::SliderStyle sliderStyle, InputRMSMeter<float>& inputMeter) :
+        juce::Slider(sliderStyle, juce::Slider::TextEntryBoxPosition::NoTextBox),
     inputRMSMeter(inputMeter),
     param(&param)
     {
@@ -87,7 +87,7 @@ juce::Timer
         startTimerHz(60);
     }
     
-    ~RMSHorizontalSlider()
+    ~RMSSlider()
     {
         setLookAndFeel(nullptr);
     }

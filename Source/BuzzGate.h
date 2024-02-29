@@ -11,12 +11,13 @@
 #pragma once
 
 #include <JuceHeader.h>
+#include "InputRMSMeter.h"
 
 //==============================================================================
 /*
 */
 template <typename SampleType>
-class BuzzGate
+class BuzzGate  :  public InputRMSMeter<float>
 {
 public:
     BuzzGate();
@@ -37,6 +38,8 @@ public:
     
     /** Sets the frequency ID (0 = 50 Hz, 1 = 60 Hz) of the noise gate.*/
     void setFrequencyID (int newFrequencyID);
+    
+    float getGainReduction ();
 
     //==============================================================================
     /** Initialises the processor. */
@@ -88,6 +91,7 @@ private:
 
     double sampleRate = 44100.0;
     SampleType thresholddB = -100, ratio = 10.0, attackTime = 1.0, releaseTime = 100.0, delaySampleDivider = 100;
+    juce::Atomic<float> gainReduction = 0.f;
     
     juce::dsp::DelayLine<float> delayLine;
     juce::dsp::IIR::Filter<float> buzzFilter[2][6] ;
