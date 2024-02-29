@@ -222,7 +222,7 @@ private:
     HissComponent hissSection;
     NoiseComponent noiseSection;
     
-    std::unique_ptr<juce::Drawable> logo, logoShadow;
+    std::unique_ptr<juce::Drawable> logo, logoShadow, pluginIcon, pluginIconShadow;
     juce::DrawableText pluginLogo, pluginLogoShadow;
     
     juce::Rectangle<int> debugRect1, debugRect2;

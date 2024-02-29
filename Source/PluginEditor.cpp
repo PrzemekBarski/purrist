@@ -17,6 +17,9 @@ PurristAudioProcessorEditor::PurristAudioProcessorEditor (PurristAudioProcessor&
     logoShadow = juce::Drawable::createFromImageData (BinaryData::straycat_svg, BinaryData::straycat_svgSize);
     logo = juce::Drawable::createFromImageData (BinaryData::straycatwhite_svg, BinaryData::straycatwhite_svgSize);
     
+    pluginIconShadow = juce::Drawable::createFromImageData (BinaryData::purristlogoshadow_svg, BinaryData::purristlogoshadow_svgSize);
+    pluginIcon = juce::Drawable::createFromImageData (BinaryData::purristlogo_svg, BinaryData::purristlogo_svgSize);
+    
     pluginLogo.setText("PURRIST");
     pluginLogo.setColour(juce::Colour(250, 219, 35));
     pluginLogo.setFont(getDisplayFont(), true);
@@ -29,6 +32,7 @@ PurristAudioProcessorEditor::PurristAudioProcessorEditor (PurristAudioProcessor&
     pluginLogoShadow.setJustification(juce::Justification::bottomLeft);
     pluginLogoShadow.setFontHeight(82);
     
+    addAndMakeVisible(pluginIconShadow.get());
     addAndMakeVisible(logoShadow.get());
     addAndMakeVisible(logo.get());
     addAndMakeVisible(pluginLogoShadow);
@@ -36,6 +40,7 @@ PurristAudioProcessorEditor::PurristAudioProcessorEditor (PurristAudioProcessor&
     addAndMakeVisible (buzzSection);
     addAndMakeVisible (hissSection);
     addAndMakeVisible (noiseSection);
+    addAndMakeVisible(pluginIcon.get());
     setResizable (true, true);
     setResizeLimits(920, 540, 9999, 9999);
     setSize (1024, 540);
@@ -81,6 +86,8 @@ void PurristAudioProcessorEditor::resized()
     logoShadow->setTransformToFit(logoShadowArea.toFloat(), logoPlacement);
     logo->setTransformToFit(logoArea.toFloat(), logoPlacement);
     
+    /*--------------------------------------*/
+    
     auto pluginLogoHeight = header.getHeight() * 1.75f;
     auto pluginLogoOffset = header.getHeight() * 0.4f;
     
@@ -91,6 +98,16 @@ void PurristAudioProcessorEditor::resized()
     
     pluginLogoShadow.setBoundingBox(Parallelogram<float>(pluginLogoShadowArea));
     pluginLogo.setBoundingBox(Parallelogram<float>(pluginLogoArea));
+    
+    /*--------------------------------------*/
+    
+    auto pluginIconArea = header.withBottom(header.getBottom() + 40).withTop(header.getY() - 10);
+    auto pluginIconShadowArea = pluginIconArea.withPosition(pluginIconArea.getX() + 5, pluginIconArea.getY() + 5);
+    
+    RectanglePlacement pluginIconPlacement {RectanglePlacement::xMid | RectanglePlacement::yBottom};
+    
+    pluginIcon->setTransformToFit(pluginIconArea.toFloat(), pluginIconPlacement);
+    pluginIconShadow->setTransformToFit(pluginIconShadowArea.toFloat(), pluginIconPlacement);
     
     area.removeFromTop(16);
     
@@ -115,12 +132,12 @@ void BuzzComponent::paintSection(juce::Graphics& g)
     int thresholdSliderWidth = juce::jmin(80, 120);
     auto thresholdSliderBounds = area.removeFromRight(80).withLeft(area.getRight() - 20);
     
-    g.setColour(juce::Colours::red);
-    g.drawRect(thresholdSliderBounds);
+//    g.setColour(juce::Colours::red);
+//    g.drawRect(thresholdSliderBounds);
     
-    area.removeFromBottom(48);
+    area.removeFromBottom(64);
     
-    buzzRatioSlider.setBounds(area.removeFromBottom(area.getHeight() / 3));
+    buzzRatioSlider.setBounds(area.removeFromBottom(area.getHeight() / 2));
     
     buzzThresholdSlider.setBounds(thresholdSliderBounds);
 }
