@@ -90,8 +90,8 @@ private:
     double sampleRate = 44100.0;
     SampleType thresholddB = -100, ratio = 10.0, attackTime = 1.0, releaseTime = 100.0, delaySampleDivider = 100;
     
-    juce::dsp::DelayLine<float> delayLine;
-    juce::dsp::IIR::Filter<float> buzzFilter[2][6] ;
+    juce::dsp::DelayLine<SampleType> delayLine;
+    juce::dsp::IIR::Filter<SampleType> buzzFilter[2][6] ;
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (BuzzGate)
 };

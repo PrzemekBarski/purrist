@@ -91,7 +91,7 @@ void BuzzGate<SampleType>::prepare (const juce::dsp::ProcessSpec& spec)
     int buzzFilterFreq = 50;
     for (int channel = 0; channel < 2 && channel; channel++) {
         for (int instance = 0; instance < 6; instance++) {
-            *buzzFilter[channel][instance].coefficients = juce::dsp::IIR::ArrayCoefficients<float>::makePeakFilter(sampleRate, (float)buzzFilterFreq, 1000, 1);
+            *buzzFilter[channel][instance].coefficients = juce::dsp::IIR::ArrayCoefficients<SampleType>::makePeakFilter(sampleRate, (SampleType)buzzFilterFreq, 1000, 1);
             buzzFilter[channel][instance].prepare (spec);
             buzzFilterFreq += 50;
         }
@@ -133,7 +133,7 @@ SampleType BuzzGate<SampleType>::processSample (int channel, SampleType sample)
     // Ballistics filter
     env = envelopeFilter.processSample (channel, env);
     
-    auto minGain = juce::Decibels::decibelsToGain(static_cast<SampleType> (-24.0));
+    auto minGain = juce::Decibels::decibelsToGain(static_cast<SampleType> (-15.0));
     auto gain = (env > threshold) ? static_cast<SampleType> (1.0)
                                   : std::pow (env * thresholdInverse, currentRatio - static_cast<SampleType> (1.0));
     gain = std::max(gain, minGain);
@@ -141,14 +141,16 @@ SampleType BuzzGate<SampleType>::processSample (int channel, SampleType sample)
     if (!channel)
         this->setGainReduction(juce::Decibels::gainToDecibels(gain));
     
+//    modifiedSample = sample;
+    
     auto combGain = 1 - gain;
     modifiedSample = (sample + delayedSample * combGain) * (1 - 0.3f * combGain);
     
-    int buzzFilterFreq = 50;
+    int buzzFilterFreq = frequencyID ? 60 : 50;
     for (int i = 0; i < 6; i++) {
-        *buzzFilter[channel][i].coefficients = juce::dsp::IIR::ArrayCoefficients<float>::makePeakFilter(sampleRate, (float)buzzFilterFreq, 10000, gain);
+        *buzzFilter[channel][i].coefficients = juce::dsp::IIR::ArrayCoefficients<SampleType>::makePeakFilter(sampleRate, (SampleType)buzzFilterFreq, 75, gain);
         modifiedSample = buzzFilter[channel][i].processSample(modifiedSample);
-        buzzFilterFreq += 50;
+        buzzFilterFreq += frequencyID ? 60 : 50;
     }
 
     // Output

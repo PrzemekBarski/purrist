@@ -103,7 +103,7 @@ class BuzzComponent   : public SectionComponent
 public:
     BuzzComponent(PurristAudioProcessor& p)
         : SectionComponent(p),
-    gainReductionMeter(p.chain[0].get<ChainPositions::buzzGate>(), meterRange::range24),
+    gainReductionMeter(p.chain[0].get<ChainPositions::buzzGate>(), meterRange::range12),
     ratioSlider(*audioProcessor.apvts.getParameter("buzz_ratio"), ":1"),
     freqSlider(*audioProcessor.apvts.getParameter("buzz_frequency"), ""),
     thresholdSlider(*audioProcessor.apvts.getParameter("buzz_threshold"),

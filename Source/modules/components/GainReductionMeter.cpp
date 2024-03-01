@@ -40,7 +40,16 @@ void GainReductionMeter::paint(juce::Graphics& g)
     g.drawRect(graphArea, 2);
     
     int textWidth = 22;
-    int scaleStep = (gainReductionArea.getWidth() / (meterRange / -6)) < textWidth ? 12 : 6;
+    
+    int scaleStep = 12;
+    
+    if ((gainReductionArea.getWidth() / (meterRange / -3)) >= textWidth)
+    {
+        scaleStep = 3;
+    } else if ((gainReductionArea.getWidth() / (meterRange / -6)) >= textWidth)
+    {
+        scaleStep = 6;
+    }
     
     for (int dbBar = meterRange + scaleStep; dbBar < 0; dbBar += scaleStep) {
         auto bar = jmap(float(dbBar), float(meterRange), 0.f, 0.f, float(gainReductionArea.getWidth()));
