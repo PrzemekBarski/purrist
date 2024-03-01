@@ -123,7 +123,7 @@ void PurristAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBloc
     
     for (int channel = 0; channel < 2; channel++) {
         chain[channel].get<ChainPositions::buzzGate>().setAttack(5);
-        chain[channel].get<ChainPositions::buzzGate>().setRelease(20);
+        chain[channel].get<ChainPositions::buzzGate>().setRelease(150);
         
         chain[channel].get<ChainPositions::hissGate>().setAttack(50);
         chain[channel].get<ChainPositions::hissGate>().setRelease(300);

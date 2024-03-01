@@ -72,12 +72,6 @@ void BuzzGate<SampleType>::setFrequencyID (int newFrequencyID)
     update();
 }
 
-template <typename SampleType>
-float BuzzGate<SampleType>::getGainReduction ()
-{
-    return gainReduction.get();
-}
-
 //==============================================================================
 template <typename SampleType>
 void BuzzGate<SampleType>::prepare (const juce::dsp::ProcessSpec& spec)
@@ -143,7 +137,7 @@ SampleType BuzzGate<SampleType>::processSample (int channel, SampleType sample)
     auto gain = (env > threshold) ? static_cast<SampleType> (1.0)
                                   : std::pow (env * thresholdInverse, currentRatio - static_cast<SampleType> (1.0));
     gain = std::max(gain, minGain);
-    gainReduction.set(juce::Decibels::gainToDecibels(gain));
+    this->setGainReduction(juce::Decibels::gainToDecibels(gain));
     
     auto combGain = 1 - gain;
     modifiedSample = (sample + delayedSample * combGain) * (1 - 0.3f * combGain);

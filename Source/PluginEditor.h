@@ -12,6 +12,7 @@
 #include "PluginProcessor.h"
 #include "GUI.h"
 #include "ResponseCurve.h"
+#include "GainReductionMeter.h"
 
 //==============================================================================
 /**
@@ -102,6 +103,7 @@ class BuzzComponent   : public SectionComponent
 public:
     BuzzComponent(PurristAudioProcessor& p)
         : SectionComponent(p),
+    gainReductionMeter(p.chain[0].get<ChainPositions::buzzGate>(), meterRange::range24),
     buzzRatioSlider(*audioProcessor.apvts.getParameter("buzz_ratio"), ":1"),
     buzzFreqSlider(*audioProcessor.apvts.getParameter("buzz_frequency"), ""),
     buzzThresholdSlider(*audioProcessor.apvts.getParameter("buzz_threshold"),
@@ -120,6 +122,8 @@ public:
     std::vector<juce::Component*> getComponents() override;
 private:
     void paintSection(juce::Graphics& g) override;
+    
+    GainReductionMeter gainReductionMeter;
     
     RotarySliderWithLabels  buzzRatioSlider, buzzFreqSlider;
     

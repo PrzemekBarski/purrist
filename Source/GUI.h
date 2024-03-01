@@ -11,7 +11,7 @@
 #pragma once
 
 #include <JuceHeader.h>
-#include "InputRMSMeter.h"
+#include "RMSMeters.h"
 
 static const juce::Font getFont()
 {
@@ -77,7 +77,7 @@ private:
 struct RMSSlider : juce::Slider,
 juce::Timer
 {
-    RMSSlider(juce::RangedAudioParameter& param, juce::Slider::SliderStyle sliderStyle, InputRMSMeter<float>& inputMeter) :
+    RMSSlider(juce::RangedAudioParameter& param, juce::Slider::SliderStyle sliderStyle, RMSMeters<float>& inputMeter) :
         juce::Slider(sliderStyle, juce::Slider::TextEntryBoxPosition::NoTextBox),
     inputRMSMeter(inputMeter),
     param(&param)
@@ -100,7 +100,7 @@ juce::Timer
     void timerCallback() override;
     
 private:
-    InputRMSMeter<float>& inputRMSMeter;
+    RMSMeters<float>& inputRMSMeter;
     LookAndFeel lnf;
     juce::RangedAudioParameter* param;
 };

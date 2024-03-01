@@ -11,13 +11,13 @@
 #pragma once
 
 #include <JuceHeader.h>
-#include "InputRMSMeter.h"
+#include "RMSMeters.h"
 
 //==============================================================================
 /*
 */
 template <typename SampleType>
-class HissGate  :  public InputRMSMeter<SampleType>
+class HissGate  :  public RMSMeters<SampleType>
 {
 public:
     HissGate();

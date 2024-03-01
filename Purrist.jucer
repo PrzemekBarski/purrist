@@ -7,9 +7,9 @@
   <MAINGROUP id="bOXJYb" name="Purrist">
     <GROUP id="{293F73BD-1395-62FC-5B75-361BD08808B2}" name="Source">
       <GROUP id="{8BB2E9FC-E309-11EA-65C2-A1282256F942}" name="images">
-        <FILE id="OVwleC" name="purrist-logo-shadow.svg" compile="0" resource="1"
+        <FILE id="v5hM8z" name="purrist-logo-shadow.svg" compile="0" resource="1"
               file="Source/images/purrist-logo-shadow.svg"/>
-        <FILE id="x0pxjI" name="purrist-logo.svg" compile="0" resource="1"
+        <FILE id="wH5P9h" name="purrist-logo.svg" compile="0" resource="1"
               file="Source/images/purrist-logo.svg"/>
         <FILE id="NYZuxU" name="stray-cat-white.svg" compile="0" resource="1"
               file="Source/images/stray-cat-white.svg"/>
@@ -34,10 +34,10 @@
         <FILE id="Wb8IYh" name="GUI.h" compile="0" resource="0" file="Source/GUI.h"/>
         <FILE id="osIc0x" name="HissGate.cpp" compile="1" resource="0" file="Source/HissGate.cpp"/>
         <FILE id="xwHTQl" name="HissGate.h" compile="0" resource="0" file="Source/HissGate.h"/>
-        <FILE id="bnIo3V" name="InputRMSMeter.h" compile="0" resource="0" file="Source/InputRMSMeter.h"/>
         <FILE id="qPiX7N" name="ResponseCurve.cpp" compile="1" resource="0"
               file="Source/ResponseCurve.cpp"/>
         <FILE id="jOG8vX" name="ResponseCurve.h" compile="0" resource="0" file="Source/ResponseCurve.h"/>
+        <FILE id="MuMC4C" name="RMSMeters.h" compile="0" resource="0" file="Source/RMSMeters.h"/>
       </GROUP>
       <FILE id="N6MgVn" name="PluginProcessor.cpp" compile="1" resource="0"
             file="Source/PluginProcessor.cpp"/>

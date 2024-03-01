@@ -130,14 +130,14 @@ void BuzzComponent::paintSection(juce::Graphics& g)
 {
     auto area = getSectionArea();
     int thresholdSliderWidth = juce::jmin(80, 120);
-    auto thresholdSliderBounds = area.removeFromRight(80).withLeft(area.getRight() - 20);
+    auto thresholdSliderBounds = area.removeFromRight(100);
     
 //    g.setColour(juce::Colours::red);
 //    g.drawRect(thresholdSliderBounds);
     
-    area.removeFromBottom(64);
+    gainReductionMeter.setBounds(area.removeFromBottom(64));
     
-    buzzRatioSlider.setBounds(area.removeFromBottom(area.getHeight() / 2));
+    buzzRatioSlider.setBounds(area.removeFromBottom(area.getHeight() / 2).withRight(area.getRight() + 10));
     
     buzzThresholdSlider.setBounds(thresholdSliderBounds);
 }
@@ -170,7 +170,8 @@ std::vector<juce::Component*> BuzzComponent::getComponents()
     {
         &buzzThresholdSlider,
         &buzzRatioSlider,
-        &buzzFreqSlider
+        &buzzFreqSlider,
+        &gainReductionMeter
     };
 }
 

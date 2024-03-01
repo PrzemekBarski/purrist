@@ -13,11 +13,11 @@
 #include <JuceHeader.h>
 
 template <typename SampleType>
-class InputRMSMeter
+class RMSMeters
 {
 public:
     //==============================================================================
-    InputRMSMeter() {};
+    RMSMeters() {};
     float getInputRMS()
     {
         return inputRMS.get();
@@ -28,10 +28,21 @@ public:
         inputRMS.set(RMS);
     }
     
+    float getGainReduction ()
+    {
+        return gainReduction.get();
+    }
+    
+    void setGainReduction (float RMS)
+    {
+        gainReduction.set(RMS);
+    }
+    
 private:
     juce::Atomic<float> inputRMS = 0.f;
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (InputRMSMeter)
+    juce::Atomic<float> gainReduction = 0.f;
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (RMSMeters)
 };
 
-template class InputRMSMeter<float>;
-template class InputRMSMeter<double>;
+template class RMSMeters<float>;
+template class RMSMeters<double>;
