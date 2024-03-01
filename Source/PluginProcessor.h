@@ -9,8 +9,8 @@
 #pragma once
 
 #include <JuceHeader.h>
-#include "BuzzGate.h"
-#include "HissGate.h"
+#include "modules/processors/BuzzGate.h"
+#include "modules/processors/HissGate.h"
 
 struct ChainSettings
 {

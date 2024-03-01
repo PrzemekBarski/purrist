@@ -24,20 +24,26 @@
               file="Source/bin/WorkSans-SemiBold.ttf"/>
       </GROUP>
       <GROUP id="{4B038A85-B6BB-BFAB-7764-12CC874091E9}" name="modules">
-        <FILE id="qbQDAz" name="BuzzGate.cpp" compile="1" resource="0" file="Source/BuzzGate.cpp"/>
-        <FILE id="e2aYVv" name="BuzzGate.h" compile="0" resource="0" file="Source/BuzzGate.h"/>
-        <FILE id="bbEXuI" name="GainReductionMeter.cpp" compile="1" resource="0"
-              file="Source/GainReductionMeter.cpp"/>
-        <FILE id="lCfCDr" name="GainReductionMeter.h" compile="0" resource="0"
-              file="Source/GainReductionMeter.h"/>
-        <FILE id="Tf4Qnm" name="GUI.cpp" compile="1" resource="0" file="Source/GUI.cpp"/>
-        <FILE id="Wb8IYh" name="GUI.h" compile="0" resource="0" file="Source/GUI.h"/>
-        <FILE id="osIc0x" name="HissGate.cpp" compile="1" resource="0" file="Source/HissGate.cpp"/>
-        <FILE id="xwHTQl" name="HissGate.h" compile="0" resource="0" file="Source/HissGate.h"/>
-        <FILE id="qPiX7N" name="ResponseCurve.cpp" compile="1" resource="0"
-              file="Source/ResponseCurve.cpp"/>
-        <FILE id="jOG8vX" name="ResponseCurve.h" compile="0" resource="0" file="Source/ResponseCurve.h"/>
-        <FILE id="MuMC4C" name="RMSMeters.h" compile="0" resource="0" file="Source/RMSMeters.h"/>
+        <GROUP id="{D8F1B2DC-0909-552D-5D1C-6A12341FCA1D}" name="components">
+          <FILE id="a7kld2" name="GainReductionMeter.cpp" compile="1" resource="0"
+                file="Source/modules/components/GainReductionMeter.cpp"/>
+          <FILE id="hG3jEQ" name="GainReductionMeter.h" compile="0" resource="0"
+                file="Source/modules/components/GainReductionMeter.h"/>
+          <FILE id="KfMwEz" name="GUI.cpp" compile="1" resource="0" file="Source/modules/components/GUI.cpp"/>
+          <FILE id="wrhne4" name="GUI.h" compile="0" resource="0" file="Source/modules/components/GUI.h"/>
+          <FILE id="tmRcw1" name="ResponseCurve.cpp" compile="1" resource="0"
+                file="Source/modules/components/ResponseCurve.cpp"/>
+          <FILE id="mMOpL8" name="ResponseCurve.h" compile="0" resource="0" file="Source/modules/components/ResponseCurve.h"/>
+        </GROUP>
+        <GROUP id="{95DF00D3-70B5-DFE7-C18E-2218BAFA9E74}" name="processors">
+          <FILE id="jh94jz" name="BuzzGate.cpp" compile="1" resource="0" file="Source/modules/processors/BuzzGate.cpp"/>
+          <FILE id="m5fWOt" name="BuzzGate.h" compile="0" resource="0" file="Source/modules/processors/BuzzGate.h"/>
+          <FILE id="ZkQ6xe" name="HissGate.cpp" compile="1" resource="0" file="Source/modules/processors/HissGate.cpp"/>
+          <FILE id="txcjJM" name="HissGate.h" compile="0" resource="0" file="Source/modules/processors/HissGate.h"/>
+          <FILE id="J1qUNR" name="NoiseReduction.h" compile="0" resource="0"
+                file="Source/modules/processors/NoiseReduction.h"/>
+          <FILE id="dBBe2f" name="RMSMeters.h" compile="0" resource="0" file="Source/modules/processors/RMSMeters.h"/>
+        </GROUP>
       </GROUP>
       <FILE id="N6MgVn" name="PluginProcessor.cpp" compile="1" resource="0"
             file="Source/PluginProcessor.cpp"/>

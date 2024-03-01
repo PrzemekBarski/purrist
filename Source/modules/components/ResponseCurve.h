@@ -1,8 +1,8 @@
 /*
   ==============================================================================
 
-    GainReductionMeter.h
-    Created: 29 Feb 2024 10:26:19pm
+    ResponseCurve.h
+    Created: 25 Feb 2024 5:09:03pm
     Author:  Przemysław Barski
 
   ==============================================================================
@@ -11,24 +11,13 @@
 #pragma once
 
 #include <JuceHeader.h>
-#include "PluginProcessor.h"
+#include "../../PluginProcessor.h"
 
-enum meterRange
-{
-    range12 = -12,
-    range24 = -24,
-    range36 = -36,
-    range48 = -48,
-    range64 = -64,
-    range80 = -80
-};
-
-class GainReductionMeter   : public juce::Component,
+class ResponseCurve   : public juce::Component,
 juce::Timer
 {
 public:
-    GainReductionMeter(RMSMeters<float>& rmsMeters, int mRange) : rmsMeters (rmsMeters) {
-        meterRange = mRange;
+    ResponseCurve(PurristAudioProcessor& p) : audioProcessor (p) {
         startTimerHz(60);
     }
     
@@ -38,13 +27,11 @@ public:
     void timerCallback() override;
 
 protected:
-    RMSMeters<float>& rmsMeters;
+    PurristAudioProcessor& audioProcessor;
 
 private:
     juce::dsp::IIR::Filter<float> filter;
     juce:: Image background;
-    int padding = 8, meterRange;
     //==============================================================================
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (GainReductionMeter)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ResponseCurve)
 };
-

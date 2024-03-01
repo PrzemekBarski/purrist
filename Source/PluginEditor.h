@@ -10,9 +10,9 @@
 
 #include <JuceHeader.h>
 #include "PluginProcessor.h"
-#include "GUI.h"
-#include "ResponseCurve.h"
-#include "GainReductionMeter.h"
+#include "modules/components/GUI.h"
+#include "modules/components/ResponseCurve.h"
+#include "modules/components/GainReductionMeter.h"
 
 //==============================================================================
 /**

@@ -11,7 +11,7 @@
 #pragma once
 
 #include <JuceHeader.h>
-#include "RMSMeters.h"
+#include "../processors/RMSMeters.h"
 
 static const juce::Font getFont()
 {
