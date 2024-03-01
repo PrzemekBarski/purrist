@@ -131,7 +131,6 @@ void PurristAudioProcessorEditor::resized()
 void BuzzComponent::paintSection(juce::Graphics& g)
 {
     auto area = getSectionArea();
-    int thresholdSliderWidth = juce::jmin(80, 120);
     auto thresholdSliderBounds = area.removeFromRight(100);
     
 //    g.setColour(juce::Colours::red);
@@ -139,9 +138,11 @@ void BuzzComponent::paintSection(juce::Graphics& g)
     
     gainReductionMeter.setBounds(area.removeFromBottom(64));
     
-    buzzRatioSlider.setBounds(area.removeFromBottom(area.getHeight() / 2).withRight(area.getRight() + 10));
+    area.removeFromBottom((area.getHeight() - 24) / 2);
+    area.removeFromBottom(24);
+    ratioSlider.setBounds(area.withRight(area.getRight() + 15));
     
-    buzzThresholdSlider.setBounds(thresholdSliderBounds);
+    thresholdSlider.setBounds(thresholdSliderBounds);
 }
 
 void HissComponent::paintSection(juce::Graphics& g)
@@ -157,22 +158,36 @@ void HissComponent::resized()
     auto area = getSectionArea();
     area.removeFromBottom(area.getHeight() / 3 + 18);
 
-    hissThresholdSlider.setBounds(area.removeFromBottom(80));
+    thresholdSlider.setBounds(area.removeFromBottom(80));
     
     area.removeFromBottom(18);
     
-    hissRatioSlider.setBounds(area.removeFromLeft(area.getWidth() / 2));
-    hissCutoffSlider.setBounds(area);
+    ratioSlider.setBounds(area.removeFromLeft(area.getWidth() / 2));
+    cutoffSlider.setBounds(area);
     
+}
+
+void NoiseComponent::resized()
+{
+    auto area = getSectionArea();
+    auto thresholdSliderBounds = area.removeFromRight(100);
+    
+    gainReductionMeter.setBounds(area.removeFromBottom(64));
+    
+    releaseSlider.setBounds(area.removeFromBottom((area.getHeight() - 24) / 2).withRight(area.getRight() + 15));
+    area.removeFromBottom(24);
+    ratioSlider.setBounds(area.withRight(area.getRight() + 15));
+    
+    thresholdSlider.setBounds(thresholdSliderBounds);
 }
 
 std::vector<juce::Component*> BuzzComponent::getComponents()
 {
     return
     {
-        &buzzThresholdSlider,
-        &buzzRatioSlider,
-        &buzzFreqSlider,
+        &thresholdSlider,
+        &ratioSlider,
+        &freqSlider,
         &gainReductionMeter
     };
 }
@@ -181,9 +196,9 @@ std::vector<juce::Component*> HissComponent::getComponents()
 {
     return
     {
-        &hissThresholdSlider,
-        &hissRatioSlider,
-        &hissCutoffSlider,
+        &thresholdSlider,
+        &ratioSlider,
+        &cutoffSlider,
         &responseCurve
     };
 }
@@ -192,8 +207,9 @@ std::vector<juce::Component*> NoiseComponent::getComponents()
 {
     return
     {
-        &noiseThresholdSlider,
-        &noiseRatioSlider,
-        &noiseReleaseSlider
+        &thresholdSlider,
+        &ratioSlider,
+        &releaseSlider,
+        &gainReductionMeter
     };
 }

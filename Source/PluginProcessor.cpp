@@ -335,7 +335,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout PurristAudioProcessor::creat
         std::make_unique<juce::AudioParameterFloat>(
             juce::ParameterID("noise_release", 1),
             "Release",
-            juce::NormalisableRange<float>(0.f, 1000.f, 1.f, 0.5f),
+            juce::NormalisableRange<float>(0.f, 800.f, 1.f, 0.5f),
             200.f
         )
     );

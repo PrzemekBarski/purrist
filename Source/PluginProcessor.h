@@ -11,6 +11,7 @@
 #include <JuceHeader.h>
 #include "modules/processors/BuzzGate.h"
 #include "modules/processors/HissGate.h"
+#include "modules/processors/NoiseReduction.h"
 
 struct ChainSettings
 {
@@ -21,8 +22,7 @@ struct ChainSettings
 
 ChainSettings getChainSettings(juce::AudioProcessorValueTreeState& apvts);
 
-using NoiseGate = juce::dsp::NoiseGate<float>;
-using MonoChain = juce::dsp::ProcessorChain<BuzzGate<float>, HissGate<float>, NoiseGate>;
+using MonoChain = juce::dsp::ProcessorChain<BuzzGate<float>, HissGate<float>, NoiseReduction<float>>;
 
 enum ChainPositions
 {

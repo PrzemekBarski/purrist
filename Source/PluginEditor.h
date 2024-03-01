@@ -104,14 +104,14 @@ public:
     BuzzComponent(PurristAudioProcessor& p)
         : SectionComponent(p),
     gainReductionMeter(p.chain[0].get<ChainPositions::buzzGate>(), meterRange::range24),
-    buzzRatioSlider(*audioProcessor.apvts.getParameter("buzz_ratio"), ":1"),
-    buzzFreqSlider(*audioProcessor.apvts.getParameter("buzz_frequency"), ""),
-    buzzThresholdSlider(*audioProcessor.apvts.getParameter("buzz_threshold"),
+    ratioSlider(*audioProcessor.apvts.getParameter("buzz_ratio"), ":1"),
+    freqSlider(*audioProcessor.apvts.getParameter("buzz_frequency"), ""),
+    thresholdSlider(*audioProcessor.apvts.getParameter("buzz_threshold"),
                         juce::Slider::SliderStyle::LinearVertical,
                         p.chain[0].get<ChainPositions::buzzGate>()),
-    buzzThresholdSliderAttachment(audioProcessor.apvts, "buzz_threshold", buzzThresholdSlider),
-    buzzRatioSliderAttachment(audioProcessor.apvts, "buzz_ratio", buzzRatioSlider),
-    buzzFreqSliderAttachment(audioProcessor.apvts, "buzz_frequency", buzzFreqSlider)
+    thresholdSliderAttachment(audioProcessor.apvts, "buzz_threshold", thresholdSlider),
+    ratioSliderAttachment(audioProcessor.apvts, "buzz_ratio", ratioSlider),
+    freqSliderAttachment(audioProcessor.apvts, "buzz_frequency", freqSlider)
     {
         for (auto* component : getComponents()) {
             addAndMakeVisible(component);
@@ -125,12 +125,12 @@ private:
     
     GainReductionMeter gainReductionMeter;
     
-    RotarySliderWithLabels  buzzRatioSlider, buzzFreqSlider;
+    RotarySliderWithLabels  ratioSlider, freqSlider;
     
-    RMSSlider buzzThresholdSlider;
+    RMSSlider thresholdSlider;
     
-    Attachment  buzzThresholdSliderAttachment, buzzRatioSliderAttachment,
-                buzzFreqSliderAttachment;
+    Attachment  thresholdSliderAttachment, ratioSliderAttachment,
+                freqSliderAttachment;
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (BuzzComponent)
 };
@@ -140,14 +140,14 @@ class HissComponent   : public SectionComponent
 public:
     HissComponent(PurristAudioProcessor& p)
         : SectionComponent(p), responseCurve(p),
-    hissRatioSlider(*audioProcessor.apvts.getParameter("hiss_ratio"), ": 1"),
-    hissCutoffSlider(*audioProcessor.apvts.getParameter("hiss_cutoff"), "Hz"),
-    hissThresholdSlider(*audioProcessor.apvts.getParameter("hiss_threshold"),
+    ratioSlider(*audioProcessor.apvts.getParameter("hiss_ratio"), ": 1"),
+    cutoffSlider(*audioProcessor.apvts.getParameter("hiss_cutoff"), "Hz"),
+    thresholdSlider(*audioProcessor.apvts.getParameter("hiss_threshold"),
                         juce::Slider::SliderStyle::LinearHorizontal,
                         p.chain[0].get<ChainPositions::hissGate>()),
-    hissThresholdSliderAttachment(audioProcessor.apvts, "hiss_threshold", hissThresholdSlider),
-    hissRatioSliderAttachment(audioProcessor.apvts, "hiss_ratio", hissRatioSlider),
-    hissCutoffSliderAttachment(audioProcessor.apvts, "hiss_cutoff", hissCutoffSlider)
+    thresholdSliderAttachment(audioProcessor.apvts, "hiss_threshold", thresholdSlider),
+    ratioSliderAttachment(audioProcessor.apvts, "hiss_ratio", ratioSlider),
+    cutoffSliderAttachment(audioProcessor.apvts, "hiss_cutoff", cutoffSlider)
     {
         for (auto* component : getComponents()) {
             addAndMakeVisible(component);
@@ -162,12 +162,12 @@ private:
     
     ResponseCurve responseCurve;
     
-    RotarySliderWithLabels  hissRatioSlider, hissCutoffSlider;
+    RotarySliderWithLabels  ratioSlider, cutoffSlider;
     
-    RMSSlider hissThresholdSlider;
+    RMSSlider thresholdSlider;
     
-    Attachment  hissThresholdSliderAttachment, hissRatioSliderAttachment,
-                hissCutoffSliderAttachment;
+    Attachment  thresholdSliderAttachment, ratioSliderAttachment,
+                cutoffSliderAttachment;
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (HissComponent)
 };
@@ -177,12 +177,15 @@ class NoiseComponent   : public SectionComponent
 public:
     NoiseComponent(PurristAudioProcessor& p)
         : SectionComponent(p),
-    noiseThresholdSlider(*audioProcessor.apvts.getParameter("noise_threshold"), "dB"),
-    noiseRatioSlider(*audioProcessor.apvts.getParameter("noise_ratio"), ":1"),
-    noiseReleaseSlider(*audioProcessor.apvts.getParameter("noise_release"), "mS"),
-    noiseThresholdSliderAttachment(audioProcessor.apvts, "noise_threshold", noiseThresholdSlider),
-    noiseRatioSliderAttachment(audioProcessor.apvts, "noise_ratio", noiseRatioSlider),
-    noiseReleaseSliderAttachment(audioProcessor.apvts, "noise_release", noiseReleaseSlider)
+    gainReductionMeter(p.chain[0].get<ChainPositions::noiseGate>(), meterRange::range48),
+    ratioSlider(*audioProcessor.apvts.getParameter("noise_ratio"), ":1"),
+    releaseSlider(*audioProcessor.apvts.getParameter("noise_release"), "mS"),
+    thresholdSlider(*audioProcessor.apvts.getParameter("noise_threshold"),
+                        juce::Slider::SliderStyle::LinearVertical,
+                        p.chain[0].get<ChainPositions::noiseGate>()),
+    thresholdSliderAttachment(audioProcessor.apvts, "noise_threshold", thresholdSlider),
+    ratioSliderAttachment(audioProcessor.apvts, "noise_ratio", ratioSlider),
+    releaseSliderAttachment(audioProcessor.apvts, "noise_release", releaseSlider)
     {
         for (auto* component : getComponents()) {
             addAndMakeVisible(component);
@@ -190,16 +193,21 @@ public:
         title = "Noise";
     }
     
+    void resized() override;
     std::vector<juce::Component*> getComponents() override;
 private:
     void paintSection(juce::Graphics& g) override {};
     juce::dsp::IIR::Filter<float> filter;
     
-    RotarySliderWithLabels  noiseThresholdSlider, noiseRatioSlider,
-                            noiseReleaseSlider;
+    GainReductionMeter gainReductionMeter;
     
-    Attachment  noiseThresholdSliderAttachment, noiseRatioSliderAttachment,
-                noiseReleaseSliderAttachment;
+    RotarySliderWithLabels  ratioSlider,
+                            releaseSlider;
+    
+    RMSSlider thresholdSlider;
+    
+    Attachment  thresholdSliderAttachment, ratioSliderAttachment,
+                releaseSliderAttachment;
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (NoiseComponent)
 };

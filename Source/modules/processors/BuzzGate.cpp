@@ -137,7 +137,9 @@ SampleType BuzzGate<SampleType>::processSample (int channel, SampleType sample)
     auto gain = (env > threshold) ? static_cast<SampleType> (1.0)
                                   : std::pow (env * thresholdInverse, currentRatio - static_cast<SampleType> (1.0));
     gain = std::max(gain, minGain);
-    this->setGainReduction(juce::Decibels::gainToDecibels(gain));
+    
+    if (!channel)
+        this->setGainReduction(juce::Decibels::gainToDecibels(gain));
     
     auto combGain = 1 - gain;
     modifiedSample = (sample + delayedSample * combGain) * (1 - 0.3f * combGain);
