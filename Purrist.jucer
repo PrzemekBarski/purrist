@@ -7,6 +7,7 @@
   <MAINGROUP id="bOXJYb" name="Purrist">
     <GROUP id="{293F73BD-1395-62FC-5B75-361BD08808B2}" name="Source">
       <GROUP id="{8BB2E9FC-E309-11EA-65C2-A1282256F942}" name="images">
+        <FILE id="lr0HsK" name="app-icon.png" compile="0" resource="1" file="Source/images/app-icon.png"/>
         <FILE id="v5hM8z" name="purrist-logo-shadow.svg" compile="0" resource="1"
               file="Source/images/purrist-logo-shadow.svg"/>
         <FILE id="wH5P9h" name="purrist-logo.svg" compile="0" resource="1"
@@ -93,5 +94,27 @@
         <MODULEPATH id="juce_gui_extra" path="../JUCE/modules"/>
       </MODULEPATHS>
     </XCODE_MAC>
+    <XCODE_IPHONE targetFolder="Builds/iOS" iosDeviceFamily="2" microphonePermissionNeeded="1"
+                  iosBackgroundAudio="1" bigIcon="lr0HsK" smallIcon="lr0HsK">
+      <CONFIGURATIONS>
+        <CONFIGURATION isDebug="1" name="Debug"/>
+        <CONFIGURATION isDebug="0" name="Release"/>
+      </CONFIGURATIONS>
+      <MODULEPATHS>
+        <MODULEPATH id="juce_audio_basics" path="/Users/pbarski/Dev/Audio/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_devices" path="/Users/pbarski/Dev/Audio/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_formats" path="/Users/pbarski/Dev/Audio/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_plugin_client" path="/Users/pbarski/Dev/Audio/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_processors" path="/Users/pbarski/Dev/Audio/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_utils" path="/Users/pbarski/Dev/Audio/JUCE/modules"/>
+        <MODULEPATH id="juce_core" path="/Users/pbarski/Dev/Audio/JUCE/modules"/>
+        <MODULEPATH id="juce_data_structures" path="/Users/pbarski/Dev/Audio/JUCE/modules"/>
+        <MODULEPATH id="juce_dsp" path="/Users/pbarski/Dev/Audio/JUCE/modules"/>
+        <MODULEPATH id="juce_events" path="/Users/pbarski/Dev/Audio/JUCE/modules"/>
+        <MODULEPATH id="juce_graphics" path="/Users/pbarski/Dev/Audio/JUCE/modules"/>
+        <MODULEPATH id="juce_gui_basics" path="/Users/pbarski/Dev/Audio/JUCE/modules"/>
+        <MODULEPATH id="juce_gui_extra" path="/Users/pbarski/Dev/Audio/JUCE/modules"/>
+      </MODULEPATHS>
+    </XCODE_IPHONE>
   </EXPORTFORMATS>
 </JUCERPROJECT>
