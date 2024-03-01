@@ -75,6 +75,8 @@ void PurristAudioProcessorEditor::resized()
     area.removeFromLeft(paddingX);
     
     using namespace juce;
+    
+    /*--------------------------------------*/
 
     auto header = area.removeFromTop(24);
     auto logoShadowArea = header.removeFromRight(300);
@@ -93,7 +95,7 @@ void PurristAudioProcessorEditor::resized()
     
     auto pluginLogoArea = header.removeFromLeft(300).toFloat();
     pluginLogoArea = pluginLogoArea.withHeight(pluginLogoHeight)
-        .withPosition(pluginLogoArea.getX() - 5, pluginLogoArea.getY() - pluginLogoOffset);
+        .withY(pluginLogoArea.getY() - pluginLogoOffset);
     auto pluginLogoShadowArea = pluginLogoArea.withPosition(pluginLogoArea.getX() + 5, pluginLogoArea.getY() + 5);
     
     pluginLogoShadow.setBoundingBox(Parallelogram<float>(pluginLogoShadowArea));
