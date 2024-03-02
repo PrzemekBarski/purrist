@@ -88,7 +88,8 @@ private:
     int frequencyID;
 
     double sampleRate = 44100.0;
-    SampleType thresholddB = -100, ratio = 10.0, attackTime = 1.0, releaseTime = 100.0, delaySampleDivider = 100;
+    SampleType thresholddB = -100, ratio = 10.0, attackTime = 1.0, releaseTime = 100.0,
+                delaySampleDivider = 100, previousGain = 1;
     
     juce::dsp::DelayLine<SampleType> delayLine;
     juce::dsp::IIR::Filter<SampleType> buzzFilter[2][6] ;

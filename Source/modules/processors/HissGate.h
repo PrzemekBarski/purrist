@@ -88,7 +88,8 @@ private:
     juce::dsp::BallisticsFilter<SampleType> envelopeFilter, RMSFilter;
 
     double sampleRate = 44100.0;
-    SampleType thresholddB = -100, ratio = 10.0, attackTime = 1.0, releaseTime = 100.0, frequency = 2000.f;
+    SampleType thresholddB = -100, ratio = 10.0, attackTime = 1.0, releaseTime = 100.0,
+                            frequency = 2000.f, previousGain = 1;;
     juce::Atomic<float> currentGain = 0.f;
     
     juce::dsp::IIR::Filter<SampleType> hissFilter[2];

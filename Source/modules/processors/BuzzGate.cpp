@@ -141,17 +141,25 @@ SampleType BuzzGate<SampleType>::processSample (int channel, SampleType sample)
     if (!channel)
         this->setGainReduction(juce::Decibels::gainToDecibels(gain));
     
-//    modifiedSample = sample;
-    
     auto combGain = 1 - gain;
     modifiedSample = (sample + delayedSample * combGain) * (1 - 0.3f * combGain);
     
     int buzzFilterFreq = frequencyID ? 60 : 50;
     for (int i = 0; i < 6; i++) {
-        *buzzFilter[channel][i].coefficients = juce::dsp::IIR::ArrayCoefficients<SampleType>::makePeakFilter(sampleRate, (SampleType)buzzFilterFreq, 75, gain);
+        if (gain != previousGain)
+        {
+            if (!channel)
+            {
+                *buzzFilter[channel][i].coefficients = juce::dsp::IIR::ArrayCoefficients<SampleType>::makePeakFilter(sampleRate, (SampleType)buzzFilterFreq, 75, gain);
+            } else {
+                *buzzFilter[channel][i].coefficients = *buzzFilter[channel][0].coefficients;
+            }
+        }
         modifiedSample = buzzFilter[channel][i].processSample(modifiedSample);
         buzzFilterFreq += frequencyID ? 60 : 50;
     }
+    
+    previousGain = gain;
 
     // Output
     return modifiedSample;

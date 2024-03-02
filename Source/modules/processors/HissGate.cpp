@@ -116,11 +116,20 @@ SampleType HissGate<SampleType>::processSample (int channel, SampleType sample)
     auto minGain = juce::Decibels::decibelsToGain(static_cast<SampleType> (-24.0));
     auto filterGain = gain > minGain ? gain : minGain;
     
-    if (!channel)
-        currentGain.set(float(filterGain));
+    if (filterGain != previousGain)
+    {
+        if (!channel)
+        {
+            currentGain.set(float(filterGain));
+            *hissFilter[channel].coefficients = juce::dsp::IIR::ArrayCoefficients<SampleType>::
+                                                makeHighShelf(sampleRate, frequency, 1, filterGain);
+        } else {
+            *hissFilter[channel].coefficients = *hissFilter[0].coefficients;
+        }
+    }
     
-    *hissFilter[channel].coefficients = juce::dsp::IIR::ArrayCoefficients<SampleType>::makeHighShelf(sampleRate, frequency, 1, filterGain);
     modifiedSample = hissFilter[channel].processSample(modifiedSample);
+    previousGain = filterGain;
 
     // Output
     return modifiedSample;
