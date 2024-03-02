@@ -304,8 +304,8 @@ void LookAndFeel::drawRMSSlider (juce::Graphics& g, int x, int y, int width, int
     g.setColour(juce::Colours::lightgrey);
     g.fillRect(levelMeter);
     
-    for (float dbBar = -84; dbBar <= 0; dbBar += 12) {
-        auto bar = jmap(dbBar, -96.f, 12.f, trackLength - thumbRadius, 0.f);
+    for (float dbBar = -84; dbBar <= -12; dbBar += 12) {
+        auto bar = jmap(dbBar, -96.f, 0.f, trackLength - thumbRadius, 0.f);
         bar = slider.isHorizontal() ?
                 trackLength - thumbRadius / 2 - bar :
                 bar + y + thumbRadius / 2;

@@ -14,6 +14,8 @@
 void GainReductionMeter::paint(juce::Graphics& g)
 {
     auto area = getLocalBounds();
+    int textHeight = 21;
+    area.removeFromBottom(textHeight);
     area.removeFromBottom(8);
     auto gainReductionArea = area.reduced(padding);
     auto gainReduction = rmsMeters.getGainReduction();
@@ -24,7 +26,6 @@ void GainReductionMeter::paint(juce::Graphics& g)
     g.fillRect(meter);
     
     g.drawImage(background, getLocalBounds().toFloat());
-    
 }
 
 void GainReductionMeter::resized()
