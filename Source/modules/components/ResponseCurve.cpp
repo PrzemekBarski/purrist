@@ -59,28 +59,29 @@ void ResponseCurve::paint(juce::Graphics& g)
 void ResponseCurve::resized()
 {
     using namespace juce;
-    background = Image(Image::PixelFormat::RGB, getWidth(), getHeight(), true);
+    background = Image(Image::PixelFormat::RGB, getWidth() * 2, getHeight() * 2, true);
     Graphics g(background);
     
-    auto graphArea = getLocalBounds();
-    auto xLabels = graphArea.removeFromBottom(18);
-    xLabels.removeFromRight(24);
-    auto yLabels = graphArea.removeFromRight(28);
+    auto graphArea = getLocalBounds().withSize(getWidth() * 2, getHeight() * 2);
+    auto xLabels = graphArea.removeFromBottom(18 * 2);
+    xLabels.removeFromRight(24 * 2);
+    auto yLabels = graphArea.removeFromRight(28 * 2);
     
     Rectangle<int> startLabel, endLabel;
     
     startLabel.setX(0);
     startLabel.setY(xLabels.getY());
-    startLabel.setWidth(30);
-    startLabel.setHeight(18);
+    startLabel.setWidth(30 * 2);
+    startLabel.setHeight(18 * 2);
     
-    endLabel.setX(xLabels.getWidth() - 30);
+    endLabel.setX(xLabels.getWidth() - 30 * 2);
     endLabel.setY(xLabels.getY());
-    endLabel.setWidth(30);
-    endLabel.setHeight(18);
+    endLabel.setWidth(30 * 2);
+    endLabel.setHeight(18 * 2);
     
     g.setColour(Colour(80, 80, 80));
     g.setFont(getFont());
+    g.setFont(14 * 2);
     g.drawFittedText("500", startLabel, Justification::left, 1);
     g.drawFittedText("10k", endLabel, Justification::right, 1);
     
@@ -99,9 +100,13 @@ void ResponseCurve::resized()
     {
         auto normX = mapFromLog10(f, 500.f, 10000.f) ;
         g.setColour(Colour(180, 180, 180));
-        g.drawVerticalLine(graphArea.getWidth() * normX,
-                           graphArea.getY(),
-                           graphArea.getHeight());
+        g.fillRect(graphArea.getWidth() * normX,
+                   float(graphArea.getY()),
+                   2.f,
+                   float(graphArea.getHeight()));
+//        g.drawVerticalLine(graphArea.getWidth() * normX,
+//                           graphArea.getY(),
+//                           graphArea.getHeight());
         if (labels.contains(f))
         {
             Rectangle<int> label;
@@ -111,13 +116,13 @@ void ResponseCurve::resized()
             if (f >= 1000)
                 labelText << "k";
             
-            label.setX(graphArea.getWidth() * normX - 15);
+            label.setX(graphArea.getWidth() * normX - 15 * 2);
             label.setY(xLabels.getY());
-            label.setWidth(30);
-            label.setHeight(18);
+            label.setWidth(30 * 2);
+            label.setHeight(18 * 2);
             
             g.setColour(Colour(80, 80, 80));
-            g.setFont(getFont());
+//            g.setFont(getFont());
             g.drawFittedText(labelText, label, Justification::centred, 1);
         }
     }
@@ -131,23 +136,27 @@ void ResponseCurve::resized()
     {
         auto y = jmap(gDb, -27.f, 3.f, float(graphArea.getHeight()), 0.f);
         g.setColour(Colour(180, 180, 180));
-        g.drawHorizontalLine(y, 0, graphArea.getWidth());
+        g.fillRect(0.f,
+                   y,
+                   float(graphArea.getWidth()),
+                   2.f);
+//        g.drawHorizontalLine(y, 0, graphArea.getWidth());
         
         Rectangle<int> label;
         String labelText = String(int(gDb));
         
-        label.setX(yLabels.getX() + 4 + (gDb >= 0 ? 5 : 0));
-        label.setY(y - 9);
-        label.setWidth(24);
-        label.setHeight(18);
+        label.setX(yLabels.getX() + 4 * 2 + (gDb >= 0 ? 5 * 2 : 0));
+        label.setY(y - 9 * 2);
+        label.setWidth(24 * 2);
+        label.setHeight(18 * 2);
         
         g.setColour(Colour(80, 80, 80));
-        g.setFont(getFont());
+//        g.setFont(getFont());
         g.drawFittedText(labelText, label, Justification::left, 1);
     }
     
     g.setColour(juce::Colours::black);
-    g.drawRect(graphArea, 1.5f);
+    g.drawRect(graphArea, 1.5f * 2);
 }
 
 void ResponseCurve::timerCallback()
