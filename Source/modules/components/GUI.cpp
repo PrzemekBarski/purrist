@@ -108,12 +108,12 @@ void RotarySliderWithLabels::paint(juce::Graphics &g)
     area.removeFromTop(sliderBounds.getHeight());
     
     auto textHeight = 21;
-    auto label = area.removeFromTop(textHeight);
+    auto labelArea = area.removeFromTop(textHeight);
     
     g.setFont(getMediumFont());
     g.setFont(textHeight);
     g.setColour (Colours::black);
-    g.drawFittedText(param->getName(20), label, juce::Justification::centred, 1);
+    g.drawFittedText(label, labelArea, juce::Justification::centred, 1);
     
 //    g.setColour(juce::Colours::red);
 //    g.drawRect(getLocalBounds());
@@ -164,7 +164,12 @@ juce::String RotarySliderWithLabels::getDisplayString() const
             addK = true;
         }
         
-        str = juce::String(val, 1, false);
+        if (decimalPlaces)
+        {
+            str = juce::String(val, decimalPlaces, false);
+        } else {
+            str = juce::String(juce::roundToInt(val));
+        }
     }
     else
     {
@@ -207,27 +212,27 @@ void RMSSlider::paint(juce::Graphics &g)
     String valueText = String(getValue(), 1, false);
     valueText << " dB";
 
-    Rectangle<int> label, value;
+    Rectangle<int> labelArea, valueArea;
     
-    label.setX(bounds.getX());
-    label.setY(isHorizontal() ?
+    labelArea.setX(bounds.getX());
+    labelArea.setY(isHorizontal() ?
                (bounds.getY() + trackWidth + thumbRadius + 4) :
                (bounds.getHeight() - textHeight));
-    label.setHeight(textHeight);
-    label.setWidth(isHorizontal() ?
+    labelArea.setHeight(textHeight);
+    labelArea.setWidth(isHorizontal() ?
                    (bounds.getWidth() / 2) :
                    bounds.getWidth());
-    value = isHorizontal() ?
-            label.withX(bounds.getX() + bounds.getWidth() / 2) :
-            label.withPosition(bounds.getWidth() - label.getWidth(), 0);
+    valueArea = isHorizontal() ?
+        labelArea.withX(bounds.getX() + bounds.getWidth() / 2) :
+        labelArea.withPosition(bounds.getWidth() - labelArea.getWidth(), 0);
     
     g.setFont(getMediumFont());
     g.setFont(textHeight);
     g.setColour (Colours::black);
-    g.drawFittedText(param->getName(20), label, isHorizontal() ? Justification::topLeft : Justification::centredRight, 1);
+    g.drawFittedText(label, labelArea, isHorizontal() ? Justification::topLeft : Justification::centredRight, 1);
     g.setFont(getFont());
     g.setFont(18);
-    g.drawFittedText(valueText, value, Justification::centredRight, 1);
+    g.drawFittedText(valueText, valueArea, Justification::centredRight, 1);
     
 //    g.setColour(juce::Colours::red);
 //    g.drawRect(value);

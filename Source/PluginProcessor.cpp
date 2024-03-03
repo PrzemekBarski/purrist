@@ -264,7 +264,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout PurristAudioProcessor::creat
     layout.add(
         std::make_unique<juce::AudioParameterFloat>(
             juce::ParameterID("buzz_threshold", 1),
-            "Threshold",
+            "Buzz Threshold",
             juce::NormalisableRange<float>(-96.f, 0.f, 0.1f, 1.f),
             -42.f
         )
@@ -273,7 +273,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout PurristAudioProcessor::creat
     layout.add(
         std::make_unique<juce::AudioParameterFloat>(
             juce::ParameterID("buzz_ratio", 1),
-            "Ratio",
+            "Buzz Ratio",
             juce::NormalisableRange<float>(1.5f, 4.f, 0.01f, 0.55f),
             2.f
         )
@@ -286,7 +286,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout PurristAudioProcessor::creat
     layout.add(
         std::make_unique<juce::AudioParameterBool>(
             juce::ParameterID("buzz_on", 1),
-            "On",
+            "Buzz On",
             true
         )
     );
@@ -294,7 +294,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout PurristAudioProcessor::creat
     layout.add(
         std::make_unique<juce::AudioParameterChoice>(
             juce::ParameterID("buzz_frequency", 1),
-            "AC Frequency",
+            "Buzz AC Frequency",
             buzzFreqOptions,
             0
         )
@@ -303,24 +303,16 @@ juce::AudioProcessorValueTreeState::ParameterLayout PurristAudioProcessor::creat
     layout.add(
         std::make_unique<juce::AudioParameterFloat>(
             juce::ParameterID("hiss_threshold", 1),
-            "Threshold",
+            "Fizz Threshold",
             juce::NormalisableRange<float>(-96.f, 0.f, 0.1f, 1.f),
             -48.f
         )
     );
     
     layout.add(
-        std::make_unique<juce::AudioParameterBool>(
-            juce::ParameterID("hiss_on", 1),
-            "On",
-            true
-        )
-    );
-    
-    layout.add(
         std::make_unique<juce::AudioParameterFloat>(
             juce::ParameterID("hiss_ratio", 1),
-            "Ratio",
+            "Fizz Ratio",
             juce::NormalisableRange<float>(1.5f, 4.f, 0.01f, 0.55f),
             2.f
         )
@@ -329,7 +321,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout PurristAudioProcessor::creat
     layout.add(
         std::make_unique<juce::AudioParameterFloat>(
             juce::ParameterID("hiss_cutoff", 1),
-            "Cutoff",
+            "Fizz Cutoff",
             juce::NormalisableRange<float>(1000.f, 4000.f, 0.5f, 0.55f),
             2000.f
         )
@@ -337,8 +329,8 @@ juce::AudioProcessorValueTreeState::ParameterLayout PurristAudioProcessor::creat
     
     layout.add(
         std::make_unique<juce::AudioParameterBool>(
-            juce::ParameterID("noise_on", 1),
-            "On",
+            juce::ParameterID("hiss_on", 1),
+            "Fizz On",
             true
         )
     );
@@ -346,7 +338,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout PurristAudioProcessor::creat
     layout.add(
         std::make_unique<juce::AudioParameterFloat>(
             juce::ParameterID("noise_threshold", 1),
-            "Threshold",
+            "Noise Threshold",
             juce::NormalisableRange<float>(-96.f, 0.f, 0.1f, 1.f),
             -54.f
         )
@@ -355,7 +347,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout PurristAudioProcessor::creat
     layout.add(
         std::make_unique<juce::AudioParameterFloat>(
             juce::ParameterID("noise_ratio", 1),
-            "Ratio",
+            "Noise Ratio",
             juce::NormalisableRange<float>(1.5f, 4.f, 0.01f, 0.55f),
             3.f
         )
@@ -364,9 +356,17 @@ juce::AudioProcessorValueTreeState::ParameterLayout PurristAudioProcessor::creat
     layout.add(
         std::make_unique<juce::AudioParameterFloat>(
             juce::ParameterID("noise_release", 1),
-            "Release",
+            "Noise Release",
             juce::NormalisableRange<float>(0.f, 800.f, 1.f, 0.5f),
             200.f
+        )
+    );
+    
+    layout.add(
+        std::make_unique<juce::AudioParameterBool>(
+            juce::ParameterID("noise_on", 1),
+            "Noise On",
+            true
         )
     );
     

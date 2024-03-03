@@ -149,15 +149,23 @@ void BuzzComponent::paintSection(juce::Graphics& g)
     
     gainReductionMeter.setBounds(area.removeFromBottom(64));
     
-    auto buttonsArea = area.removeFromBottom((area.getHeight() - 24) / 2);
+    auto buttonsArea = area.removeFromBottom((area.getHeight()) / 2);
     buttonsArea.removeFromTop(24);
-    buttonsArea = buttonsArea.removeFromTop(40);
+    buttonsArea.removeFromBottom(48);
+    auto labelArea = buttonsArea.removeFromBottom(21);
+    buttonsArea.removeFromBottom(8);
+    buttonsArea = buttonsArea.removeFromBottom(40);
+    
+    g.setFont(getMediumFont());
+    g.setFont(21);
+    g.setColour(juce::Colours::black);
+    g.drawFittedText("AC Frequency", labelArea, juce::Justification::topLeft, 1);
     
     freqButton[0].setBounds(buttonsArea.removeFromLeft(buttonsArea.getWidth() / 2));
     freqButton[1].setBounds(buttonsArea);
     
     area.removeFromBottom(24);
-    ratioSlider.setBounds(area.withRight(area.getRight() + 15));
+    ratioSlider.setBounds(area.withRight(area.getRight() + 8));
     
     thresholdSlider.setBounds(thresholdSliderBounds);
 }

@@ -59,10 +59,12 @@ struct PurristLookAndFeel : juce::LookAndFeel_V4, public juce::DeletedAtShutdown
 
 struct RotarySliderWithLabels : juce::Slider
 {
-    RotarySliderWithLabels(juce::RangedAudioParameter& param, juce::String suffix) :
+    RotarySliderWithLabels(juce::RangedAudioParameter& param, juce::String label, juce::String suffix, int decimalPlaces) :
         juce::Slider(juce::Slider::SliderStyle::Rotary, juce::Slider::TextEntryBoxPosition::NoTextBox),
     param(&param),
-    suffix(suffix) {}
+    label(label),
+    suffix(suffix),
+    decimalPlaces(decimalPlaces) {}
     
     ~RotarySliderWithLabels()
     {
@@ -78,15 +80,17 @@ struct RotarySliderWithLabels : juce::Slider
 private:
     PurristLookAndFeel lnf;
     juce::RangedAudioParameter* param;
-    juce::String suffix;
+    juce::String label, suffix;
+    int decimalPlaces;
 };
 
 struct RMSSlider : juce::Slider,
 juce::Timer
 {
-    RMSSlider(juce::RangedAudioParameter& param, juce::Slider::SliderStyle sliderStyle, RMSMeters<float>& inputMeter) :
+    RMSSlider(juce::RangedAudioParameter& param, juce::Slider::SliderStyle sliderStyle, juce::String label, RMSMeters<float>& inputMeter) :
         juce::Slider(sliderStyle, juce::Slider::TextEntryBoxPosition::NoTextBox),
     inputRMSMeter(inputMeter),
+    label(label),
     param(&param)
     {
         lnf.setColour (juce::Slider::thumbColourId, juce::Colours::black);
@@ -108,6 +112,7 @@ juce::Timer
     
 private:
     RMSMeters<float>& inputRMSMeter;
+    juce::String label;
     PurristLookAndFeel lnf;
     juce::RangedAudioParameter* param;
 };

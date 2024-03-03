@@ -110,9 +110,10 @@ public:
     BuzzComponent(PurristAudioProcessor& p)
         : SectionComponent(p),
     gainReductionMeter(p.chain[0].get<ChainPositions::buzzGate>(), meterRange::range12),
-    ratioSlider(*audioProcessor.apvts.getParameter("buzz_ratio"), ":1"),
+    ratioSlider(*audioProcessor.apvts.getParameter("buzz_ratio"), "Ratio", ": 1", 1),
     thresholdSlider(*audioProcessor.apvts.getParameter("buzz_threshold"),
                         juce::Slider::SliderStyle::LinearVertical,
+                        "Threshold",
                         p.chain[0].get<ChainPositions::buzzGate>()),
     thresholdSliderAttachment(audioProcessor.apvts, "buzz_threshold", thresholdSlider),
     ratioSliderAttachment(audioProcessor.apvts, "buzz_ratio", ratioSlider),
@@ -163,10 +164,11 @@ class HissComponent   : public SectionComponent
 public:
     HissComponent(PurristAudioProcessor& p)
         : SectionComponent(p), responseCurve(p),
-    ratioSlider(*audioProcessor.apvts.getParameter("hiss_ratio"), ": 1"),
-    cutoffSlider(*audioProcessor.apvts.getParameter("hiss_cutoff"), "Hz"),
+    ratioSlider(*audioProcessor.apvts.getParameter("hiss_ratio"), "Ratio", ": 1", 1),
+    cutoffSlider(*audioProcessor.apvts.getParameter("hiss_cutoff"), "Cutoff", "Hz", 1),
     thresholdSlider(*audioProcessor.apvts.getParameter("hiss_threshold"),
                         juce::Slider::SliderStyle::LinearHorizontal,
+                        "Threshold",
                         p.chain[0].get<ChainPositions::hissGate>()),
     thresholdSliderAttachment(audioProcessor.apvts, "hiss_threshold", thresholdSlider),
     ratioSliderAttachment(audioProcessor.apvts, "hiss_ratio", ratioSlider),
@@ -176,7 +178,7 @@ public:
         for (auto* component : getComponents()) {
             addAndMakeVisible(component);
         }
-        title = "Hiss";
+        title = "Fizz";
     }
     
     void resized() override;
@@ -201,10 +203,11 @@ public:
     NoiseComponent(PurristAudioProcessor& p)
         : SectionComponent(p),
     gainReductionMeter(p.chain[0].get<ChainPositions::noiseGate>(), meterRange::range48),
-    ratioSlider(*audioProcessor.apvts.getParameter("noise_ratio"), ":1"),
-    releaseSlider(*audioProcessor.apvts.getParameter("noise_release"), "mS"),
+    ratioSlider(*audioProcessor.apvts.getParameter("noise_ratio"), "Ratio", ": 1", 1),
+    releaseSlider(*audioProcessor.apvts.getParameter("noise_release"), "Release", "mS", 0),
     thresholdSlider(*audioProcessor.apvts.getParameter("noise_threshold"),
                         juce::Slider::SliderStyle::LinearVertical,
+                        "Threshold",
                         p.chain[0].get<ChainPositions::noiseGate>()),
     thresholdSliderAttachment(audioProcessor.apvts, "noise_threshold", thresholdSlider),
     ratioSliderAttachment(audioProcessor.apvts, "noise_ratio", ratioSlider),
