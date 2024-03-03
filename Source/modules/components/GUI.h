@@ -27,7 +27,7 @@ static const juce::Font getMediumFont()
     return Font (typeface);
 }
 
-struct PurristLookAndFeel : juce::LookAndFeel_V2, public juce::DeletedAtShutdown
+struct PurristLookAndFeel : juce::LookAndFeel_V4, public juce::DeletedAtShutdown
 {
     JUCE_DECLARE_SINGLETON(PurristLookAndFeel, false);
     
@@ -52,6 +52,9 @@ struct PurristLookAndFeel : juce::LookAndFeel_V2, public juce::DeletedAtShutdown
     
     void drawButtonText (juce::Graphics&, juce::TextButton&,
                          bool shouldDrawButtonAsHighlighted, bool shouldDrawButtonAsDown) override;
+    
+    void drawToggleButton (juce::Graphics&, juce::ToggleButton&,
+                           bool shouldDrawButtonAsHighlighted, bool shouldDrawButtonAsDown) override;
 };
 
 struct RotarySliderWithLabels : juce::Slider

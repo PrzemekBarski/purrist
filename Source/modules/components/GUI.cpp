@@ -438,3 +438,54 @@ void PurristLookAndFeel::drawButtonText (juce::Graphics& g, juce::TextButton& bu
                           leftIndent, yIndent, textWidth, button.getHeight() - yIndent * 2,
                           Justification::centred, 2);
 }
+
+void PurristLookAndFeel::drawToggleButton (juce::Graphics& g, juce::ToggleButton& button,
+                                       bool shouldDrawButtonAsHighlighted, bool shouldDrawButtonAsDown)
+{
+    using namespace juce;
+    
+    Path powerButton;
+    
+    auto bounds = button.getLocalBounds();
+    auto size = jmin(bounds.getWidth(), bounds.getHeight()) - 4;
+    auto r = bounds.withSizeKeepingCentre(size, size);
+    float ang = 30.f;
+    
+    size -= 6;
+    
+    powerButton.addCentredArc(r.getCentreX(),
+                            r. getCentreY(),
+                            size * 0.5, size * 0.5,
+                            0.f,
+                            degreesToRadians (ang),
+                            degreesToRadians (360.f - ang),
+                            true);
+    
+    powerButton.startNewSubPath(r.getCentreX(), r.getY());
+    powerButton.lineTo(r.getCentre().toFloat());
+    
+    PathStrokeType pst(3.5f, PathStrokeType::JointStyle::curved);
+    auto color = button.getToggleState() ? Colours::black : Colours::grey;
+    g.setColour(color);
+    g.strokePath(powerButton, pst);
+//    auto fontSize = jmin (15.0f, (float) button.getHeight() * 0.75f);
+//    auto tickWidth = fontSize * 1.1f;
+//
+//    drawTickBox (g, button, 4.0f, ((float) button.getHeight() - tickWidth) * 0.5f,
+//                 tickWidth, tickWidth,
+//                 button.getToggleState(),
+//                 button.isEnabled(),
+//                 shouldDrawButtonAsHighlighted,
+//                 shouldDrawButtonAsDown);
+//
+//    g.setColour (button.findColour (ToggleButton::textColourId));
+//    g.setFont (fontSize);
+//
+//    if (! button.isEnabled())
+//        g.setOpacity (0.5f);
+//
+//    g.drawFittedText (button.getButtonText(),
+//                      button.getLocalBounds().withTrimmedLeft (roundToInt (tickWidth) + 10)
+//                                             .withTrimmedRight (2),
+//                      Justification::centredLeft, 10);
+}
