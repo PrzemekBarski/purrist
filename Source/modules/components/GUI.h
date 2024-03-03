@@ -27,8 +27,10 @@ static const juce::Font getMediumFont()
     return Font (typeface);
 }
 
-struct LookAndFeel : juce::LookAndFeel_V4
+struct PurristLookAndFeel : juce::LookAndFeel_V2, public juce::DeletedAtShutdown
 {
+    JUCE_DECLARE_SINGLETON(PurristLookAndFeel, false);
+    
     void drawRotarySlider (juce::Graphics&,
                         int x, int y, int width, int height,
                         float sliderPosProportional,
@@ -44,6 +46,12 @@ struct LookAndFeel : juce::LookAndFeel_V4
                       const juce::Colour& colour, const int direction);
     
     int getSliderThumbRadius (juce::Slider&) override {return 16;};
+    
+    void drawButtonBackground (juce::Graphics&, juce::Button&, const juce::Colour& backgroundColour,
+                               bool shouldDrawButtonAsHighlighted, bool shouldDrawButtonAsDown) override;
+    
+    void drawButtonText (juce::Graphics&, juce::TextButton&,
+                         bool shouldDrawButtonAsHighlighted, bool shouldDrawButtonAsDown) override;
 };
 
 struct RotarySliderWithLabels : juce::Slider
@@ -51,11 +59,7 @@ struct RotarySliderWithLabels : juce::Slider
     RotarySliderWithLabels(juce::RangedAudioParameter& param, juce::String suffix) :
         juce::Slider(juce::Slider::SliderStyle::Rotary, juce::Slider::TextEntryBoxPosition::NoTextBox),
     param(&param),
-    suffix(suffix)
-    {
-        lnf.setColour (juce::Slider::thumbColourId, juce::Colours::white);
-        setLookAndFeel(&lnf);
-    }
+    suffix(suffix) {}
     
     ~RotarySliderWithLabels()
     {
@@ -69,7 +73,7 @@ struct RotarySliderWithLabels : juce::Slider
     juce::String getDisplayString() const;
     
 private:
-    LookAndFeel lnf;
+    PurristLookAndFeel lnf;
     juce::RangedAudioParameter* param;
     juce::String suffix;
 };
@@ -101,6 +105,6 @@ juce::Timer
     
 private:
     RMSMeters<float>& inputRMSMeter;
-    LookAndFeel lnf;
+    PurristLookAndFeel lnf;
     juce::RangedAudioParameter* param;
 };

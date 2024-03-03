@@ -12,8 +12,19 @@
 PurristAudioProcessorEditor::PurristAudioProcessorEditor (PurristAudioProcessor& p)
     : AudioProcessorEditor (&p), audioProcessor (p), buzzSection(p), hissSection(p), noiseSection(p)
 {
-    // Make sure that before the constructor has finished, you've set the
-    // editor's size to whatever you need it to be.
+    PurristLookAndFeel* lnf = PurristLookAndFeel::getInstance();
+    
+    lnf->setColour (juce::Slider::thumbColourId, juce::Colours::white);
+    lnf->setColour (juce::Slider::rotarySliderFillColourId, juce::Colours::black);
+    
+    lnf->setColour (juce::ComboBox::outlineColourId,    juce::Colours::black);
+    lnf->setColour (juce::TextButton::textColourOffId,  juce::Colours::black);
+    lnf->setColour (juce::TextButton::textColourOnId,   juce::Colours::white);
+    lnf->setColour (juce::TextButton::buttonColourId,   juce::Colours::white);
+    lnf->setColour (juce::TextButton::buttonOnColourId, juce::Colours::black);
+    
+    juce::LookAndFeel::setDefaultLookAndFeel(lnf);
+    
     logoShadow = juce::Drawable::createFromImageData (BinaryData::straycat_svg, BinaryData::straycat_svgSize);
     logo = juce::Drawable::createFromImageData (BinaryData::straycatwhite_svg, BinaryData::straycatwhite_svgSize);
     
@@ -138,7 +149,13 @@ void BuzzComponent::paintSection(juce::Graphics& g)
     
     gainReductionMeter.setBounds(area.removeFromBottom(64));
     
-    area.removeFromBottom((area.getHeight() - 24) / 2);
+    auto buttonsArea = area.removeFromBottom((area.getHeight() - 24) / 2);
+    buttonsArea.removeFromTop(24);
+    buttonsArea = buttonsArea.removeFromTop(40);
+    
+    freqButton[0].setBounds(buttonsArea.removeFromLeft(buttonsArea.getWidth() / 2));
+    freqButton[1].setBounds(buttonsArea);
+    
     area.removeFromBottom(24);
     ratioSlider.setBounds(area.withRight(area.getRight() + 15));
     
@@ -187,7 +204,8 @@ std::vector<juce::Component*> BuzzComponent::getComponents()
     {
         &thresholdSlider,
         &ratioSlider,
-        &freqSlider,
+        &freqButton[0],
+        &freqButton[1],
         &gainReductionMeter
     };
 }

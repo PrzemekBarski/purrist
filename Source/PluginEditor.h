@@ -19,6 +19,7 @@
 */
 
 using Attachment = juce::AudioProcessorValueTreeState::SliderAttachment;
+using ButtonAttachment = juce::AudioProcessorValueTreeState::ButtonAttachment;
 
 static const juce::Font getDisplayFont()
 {
@@ -105,14 +106,30 @@ public:
         : SectionComponent(p),
     gainReductionMeter(p.chain[0].get<ChainPositions::buzzGate>(), meterRange::range12),
     ratioSlider(*audioProcessor.apvts.getParameter("buzz_ratio"), ":1"),
-    freqSlider(*audioProcessor.apvts.getParameter("buzz_frequency"), ""),
     thresholdSlider(*audioProcessor.apvts.getParameter("buzz_threshold"),
                         juce::Slider::SliderStyle::LinearVertical,
                         p.chain[0].get<ChainPositions::buzzGate>()),
     thresholdSliderAttachment(audioProcessor.apvts, "buzz_threshold", thresholdSlider),
     ratioSliderAttachment(audioProcessor.apvts, "buzz_ratio", ratioSlider),
-    freqSliderAttachment(audioProcessor.apvts, "buzz_frequency", freqSlider)
+    freqButtonAttachment(audioProcessor.apvts, "buzz_frequency", freqButton[1])
     {
+        float freqOption = audioProcessor.apvts.getRawParameterValue("buzz_frequency")->load();
+        freqButton[0].setButtonText("50 Hz");
+        freqButton[0].setConnectedEdges(juce::TextButton::ConnectedOnRight);
+        
+        freqButton[1].setButtonText("60 Hz");
+        freqButton[1].setConnectedEdges(juce::TextButton::ConnectedOnLeft);
+        
+        DBG(freqOption);
+        
+        for (int i = 0; i < 2; i++) {
+            freqButton[i].setRadioGroupId (10);
+            freqButton[i].setClickingTogglesState(true);
+            
+            if (freqOption == i)
+                freqButton[i].setToggleState (true, juce::dontSendNotification);
+        }
+        
         for (auto* component : getComponents()) {
             addAndMakeVisible(component);
         }
@@ -125,12 +142,15 @@ private:
     
     GainReductionMeter gainReductionMeter;
     
-    RotarySliderWithLabels  ratioSlider, freqSlider;
+    RotarySliderWithLabels  ratioSlider;
     
     RMSSlider thresholdSlider;
     
-    Attachment  thresholdSliderAttachment, ratioSliderAttachment,
-                freqSliderAttachment;
+    juce::TextButton freqButton[2];
+    
+    Attachment  thresholdSliderAttachment, ratioSliderAttachment;
+    
+    ButtonAttachment freqButtonAttachment;
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (BuzzComponent)
 };
