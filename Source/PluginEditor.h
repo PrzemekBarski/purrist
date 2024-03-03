@@ -31,7 +31,9 @@ static const juce::Font getDisplayFont()
 class SectionComponent   : public juce::Component
 {
 public:
-    SectionComponent(PurristAudioProcessor& p) : audioProcessor (p) {}
+    SectionComponent(PurristAudioProcessor& p) : audioProcessor (p) {
+        addAndMakeVisible(onButton);
+    }
 
     void paint (juce::Graphics& g) override {
         
@@ -56,6 +58,8 @@ public:
         
 //        g.setColour(juce::Colours::red);
 //        g.drawRect(titleField);
+        
+        onButton.setBounds(titleField.removeFromRight(titleSize));
         
         g.setFont(getDisplayFont());
         g.setFont(titleSize);
@@ -89,6 +93,7 @@ public:
 protected:
     PurristAudioProcessor& audioProcessor;
     juce::String title;
+    juce::ToggleButton onButton;
 
 private:
     int shadowOffset = 5, sectionPaddingX = 24, sectionPaddingBottom= 32, sectionPaddingTop = 16, titleSize = 32;
@@ -111,7 +116,8 @@ public:
                         p.chain[0].get<ChainPositions::buzzGate>()),
     thresholdSliderAttachment(audioProcessor.apvts, "buzz_threshold", thresholdSlider),
     ratioSliderAttachment(audioProcessor.apvts, "buzz_ratio", ratioSlider),
-    freqButtonAttachment(audioProcessor.apvts, "buzz_frequency", freqButton[1])
+    freqButtonAttachment(audioProcessor.apvts, "buzz_frequency", freqButton[1]),
+    onButtonAttachment(audioProcessor.apvts, "buzz_on", onButton)
     {
         float freqOption = audioProcessor.apvts.getRawParameterValue("buzz_frequency")->load();
         freqButton[0].setButtonText("50 Hz");
@@ -141,16 +147,13 @@ private:
     void paintSection(juce::Graphics& g) override;
     
     GainReductionMeter gainReductionMeter;
-    
     RotarySliderWithLabels  ratioSlider;
-    
     RMSSlider thresholdSlider;
-    
     juce::TextButton freqButton[2];
     
     Attachment  thresholdSliderAttachment, ratioSliderAttachment;
     
-    ButtonAttachment freqButtonAttachment;
+    ButtonAttachment freqButtonAttachment, onButtonAttachment;
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (BuzzComponent)
 };
@@ -167,7 +170,8 @@ public:
                         p.chain[0].get<ChainPositions::hissGate>()),
     thresholdSliderAttachment(audioProcessor.apvts, "hiss_threshold", thresholdSlider),
     ratioSliderAttachment(audioProcessor.apvts, "hiss_ratio", ratioSlider),
-    cutoffSliderAttachment(audioProcessor.apvts, "hiss_cutoff", cutoffSlider)
+    cutoffSliderAttachment(audioProcessor.apvts, "hiss_cutoff", cutoffSlider),
+    onButtonAttachment(audioProcessor.apvts, "hiss_on", onButton)
     {
         for (auto* component : getComponents()) {
             addAndMakeVisible(component);
@@ -181,13 +185,12 @@ private:
     void paintSection(juce::Graphics& g) override;
     
     ResponseCurve responseCurve;
-    
     RotarySliderWithLabels  ratioSlider, cutoffSlider;
-    
     RMSSlider thresholdSlider;
     
     Attachment  thresholdSliderAttachment, ratioSliderAttachment,
                 cutoffSliderAttachment;
+    ButtonAttachment onButtonAttachment;
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (HissComponent)
 };
@@ -205,7 +208,8 @@ public:
                         p.chain[0].get<ChainPositions::noiseGate>()),
     thresholdSliderAttachment(audioProcessor.apvts, "noise_threshold", thresholdSlider),
     ratioSliderAttachment(audioProcessor.apvts, "noise_ratio", ratioSlider),
-    releaseSliderAttachment(audioProcessor.apvts, "noise_release", releaseSlider)
+    releaseSliderAttachment(audioProcessor.apvts, "noise_release", releaseSlider),
+    onButtonAttachment(audioProcessor.apvts, "noise_on", onButton)
     {
         for (auto* component : getComponents()) {
             addAndMakeVisible(component);
@@ -220,14 +224,13 @@ private:
     juce::dsp::IIR::Filter<float> filter;
     
     GainReductionMeter gainReductionMeter;
-    
     RotarySliderWithLabels  ratioSlider,
                             releaseSlider;
-    
     RMSSlider thresholdSlider;
     
     Attachment  thresholdSliderAttachment, ratioSliderAttachment,
                 releaseSliderAttachment;
+    ButtonAttachment onButtonAttachment;
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (NoiseComponent)
 };

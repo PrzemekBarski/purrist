@@ -15,9 +15,9 @@
 
 struct ChainSettings
 {
-    float buzzThreshold { 1.f }, buzzRatio { 4.f }, buzzFrequency { 0 };
-    float hissThreshold { 1.f }, hissRatio { 4.f }, hissCutoff { 0 };
-    float noiseThreshold { 1.f }, noiseRatio { 4.f }, noiseRelease { 0 };
+    float buzzOn{ true }, buzzThreshold { 1.f }, buzzRatio { 4.f }, buzzFrequency { 0 };
+    float hissOn{ true }, hissThreshold { 1.f }, hissRatio { 4.f }, hissCutoff { 0 };
+    float noiseOn{ true }, noiseThreshold { 1.f }, noiseRatio { 4.f }, noiseRelease { 0 };
 };
 
 ChainSettings getChainSettings(juce::AudioProcessorValueTreeState& apvts);

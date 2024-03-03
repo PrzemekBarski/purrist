@@ -97,14 +97,17 @@ void PurristAudioProcessor::updateParameters ()
     auto chainSettings = getChainSettings(apvts);
     
     for (int channel = 0; channel < 2; channel++) {
+        chain[channel].setBypassed<ChainPositions::buzzGate>(!chainSettings.buzzOn);
         chain[channel].get<ChainPositions::buzzGate>().setThreshold(chainSettings.buzzThreshold);
         chain[channel].get<ChainPositions::buzzGate>().setRatio(chainSettings.buzzRatio);
         chain[channel].get<ChainPositions::buzzGate>().setFrequencyID(chainSettings.buzzFrequency);
         
+        chain[channel].setBypassed<ChainPositions::hissGate>(!chainSettings.hissOn);
         chain[channel].get<ChainPositions::hissGate>().setThreshold(chainSettings.hissThreshold);
         chain[channel].get<ChainPositions::hissGate>().setRatio(chainSettings.hissRatio);
         chain[channel].get<ChainPositions::hissGate>().setCutoff(chainSettings.hissCutoff);
         
+        chain[channel].setBypassed<ChainPositions::noiseGate>(!chainSettings.noiseOn);
         chain[channel].get<ChainPositions::noiseGate>().setThreshold(chainSettings.noiseThreshold);
         chain[channel].get<ChainPositions::noiseGate>().setRatio(chainSettings.noiseRatio);
         chain[channel].get<ChainPositions::noiseGate>().setRelease(chainSettings.noiseRelease);
@@ -236,14 +239,17 @@ ChainSettings getChainSettings(juce::AudioProcessorValueTreeState& apvts)
 {
     ChainSettings settings;
     
+    settings.buzzOn = apvts.getRawParameterValue("buzz_on")->load() > 0.5f;
     settings.buzzThreshold = apvts.getRawParameterValue("buzz_threshold")->load();
     settings.buzzRatio = apvts.getRawParameterValue("buzz_ratio")->load();
     settings.buzzFrequency = apvts.getRawParameterValue("buzz_frequency")->load();
     
+    settings.hissOn = apvts.getRawParameterValue("hiss_on")->load() > 0.5f;
     settings.hissThreshold = apvts.getRawParameterValue("hiss_threshold")->load();
     settings.hissRatio = apvts.getRawParameterValue("hiss_ratio")->load();
     settings.hissCutoff = apvts.getRawParameterValue("hiss_cutoff")->load();
     
+    settings.noiseOn = apvts.getRawParameterValue("noise_on")->load() > 0.5f;
     settings.noiseThreshold = apvts.getRawParameterValue("noise_threshold")->load();
     settings.noiseRatio = apvts.getRawParameterValue("noise_ratio")->load();
     settings.noiseRelease = apvts.getRawParameterValue("noise_release")->load();
@@ -278,6 +284,14 @@ juce::AudioProcessorValueTreeState::ParameterLayout PurristAudioProcessor::creat
     buzzFreqOptions.add("60Hz");
     
     layout.add(
+        std::make_unique<juce::AudioParameterBool>(
+            juce::ParameterID("buzz_on", 1),
+            "On",
+            true
+        )
+    );
+    
+    layout.add(
         std::make_unique<juce::AudioParameterChoice>(
             juce::ParameterID("buzz_frequency", 1),
             "AC Frequency",
@@ -296,6 +310,14 @@ juce::AudioProcessorValueTreeState::ParameterLayout PurristAudioProcessor::creat
     );
     
     layout.add(
+        std::make_unique<juce::AudioParameterBool>(
+            juce::ParameterID("hiss_on", 1),
+            "On",
+            true
+        )
+    );
+    
+    layout.add(
         std::make_unique<juce::AudioParameterFloat>(
             juce::ParameterID("hiss_ratio", 1),
             "Ratio",
@@ -310,6 +332,14 @@ juce::AudioProcessorValueTreeState::ParameterLayout PurristAudioProcessor::creat
             "Cutoff",
             juce::NormalisableRange<float>(1000.f, 4000.f, 0.5f, 0.55f),
             2000.f
+        )
+    );
+    
+    layout.add(
+        std::make_unique<juce::AudioParameterBool>(
+            juce::ParameterID("noise_on", 1),
+            "On",
+            true
         )
     );
     
