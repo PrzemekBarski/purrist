@@ -76,9 +76,10 @@ void PurristAudioProcessorEditor::resized()
 {
     auto area = getLocalBounds();
     
-    int paddingX = 20;
     int maxHeight = 480;
+    int maxWidth = 1024;
     int paddingY = (area.getHeight() - maxHeight) / 2;
+    int paddingX = juce::jmax((area.getWidth() - maxWidth) / 2, 20);
     
     area.removeFromTop(paddingY);
     area.removeFromRight(paddingX);
