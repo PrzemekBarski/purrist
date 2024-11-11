@@ -27,7 +27,16 @@ static const juce::Font getMediumFont()
     return Font (typeface);
 }
 
-struct PurristLookAndFeel : juce::LookAndFeel_V4, public juce::DeletedAtShutdown
+struct PurristLookAndFeelShared : juce::LookAndFeel_V4
+{
+    void drawButtonText (juce::Graphics&, juce::TextButton&,
+                         bool shouldDrawButtonAsHighlighted, bool shouldDrawButtonAsDown) override;
+    
+    virtual juce::Font getTextButtonFont (juce::TextButton&, int buttonHeight) override = 0;
+    virtual juce::Font getTextButtonFont () = 0;
+};
+
+struct PurristLookAndFeel : PurristLookAndFeelShared, public juce::DeletedAtShutdown
 {
     JUCE_DECLARE_SINGLETON(PurristLookAndFeel, false);
     
@@ -50,21 +59,39 @@ struct PurristLookAndFeel : juce::LookAndFeel_V4, public juce::DeletedAtShutdown
     void drawButtonBackground (juce::Graphics&, juce::Button&, const juce::Colour& backgroundColour,
                                bool shouldDrawButtonAsHighlighted, bool shouldDrawButtonAsDown) override;
     
-    void drawButtonText (juce::Graphics&, juce::TextButton&,
-                         bool shouldDrawButtonAsHighlighted, bool shouldDrawButtonAsDown) override;
+    juce::Font getTextButtonFont (juce::TextButton&, int buttonHeight) override;
+    juce::Font getTextButtonFont () override;
     
     void drawToggleButton (juce::Graphics&, juce::ToggleButton&,
                            bool shouldDrawButtonAsHighlighted, bool shouldDrawButtonAsDown) override;
+
+private:
+    int getSliderTextHeight() const { return 14; }
+    int getSliderLabelTextHeight() const { return 18; }
 };
 
-struct RotarySliderWithLabels : juce::Slider
+struct PurristHelpButtonLNF : PurristLookAndFeelShared, public juce::DeletedAtShutdown
+{
+    JUCE_DECLARE_SINGLETON(PurristHelpButtonLNF, false);
+    
+    juce::Font getTextButtonFont (juce::TextButton&, int buttonHeight) override;
+    juce::Font getTextButtonFont () override;
+};
+
+struct RotarySliderWithLabels : juce::Component
 {
     RotarySliderWithLabels(juce::RangedAudioParameter& param, juce::String label, juce::String suffix, int decimalPlaces) :
-        juce::Slider(juce::Slider::SliderStyle::Rotary, juce::Slider::TextEntryBoxPosition::NoTextBox),
+    slider(juce::Slider::SliderStyle::Rotary, juce::Slider::TextEntryBoxPosition::NoTextBox),
     param(&param),
     label(label),
     suffix(suffix),
-    decimalPlaces(decimalPlaces) {}
+    decimalPlaces(decimalPlaces)
+    {
+        slider.setScrollWheelEnabled(false);
+        slider.setRotaryParameters(juce::degreesToRadians(270.f),
+                                juce::degreesToRadians(90.f) + juce::MathConstants<float>::twoPi,
+                                true);
+    }
     
     ~RotarySliderWithLabels()
     {
@@ -72,13 +99,12 @@ struct RotarySliderWithLabels : juce::Slider
     }
     
     void paint(juce::Graphics& g) override;
-    juce::Rectangle<int> getSliderBounds() const;
-    int getTextHeight() const { return 14; }
-    int getLabelTextHeight() const { return 18; }
+    juce::Rectangle<int> calculateBounds(juce::Rectangle<int> inputBounds);
+    juce::Slider& getSlider();
     juce::String getDisplayString() const;
     
 private:
-    PurristLookAndFeel lnf;
+    juce::Slider slider;
     juce::RangedAudioParameter* param;
     juce::String label, suffix;
     int decimalPlaces;
@@ -93,6 +119,7 @@ juce::Timer
     label(label),
     param(&param)
     {
+        setScrollWheelEnabled(false);
         lnf.setColour (juce::Slider::thumbColourId, juce::Colours::black);
         setLookAndFeel(&lnf);
         startTimerHz(60);

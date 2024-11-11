@@ -26,31 +26,7 @@ void PurristLookAndFeel::drawRotarySlider(juce::Graphics & g,
     auto outline = slider.findColour (Slider::rotarySliderOutlineColourId);
     auto fill    = slider.findColour (Slider::rotarySliderFillColourId);
 
-    auto bounds = Rectangle<int> (x, y, width, height).toFloat().reduced (6);
-    
-//    g.setColour(juce::Colours::black);
-//    g.drawRect(bounds);
-    
-    if (auto* rswl = dynamic_cast<RotarySliderWithLabels*>(&slider))
-    {
-        auto center = bounds.getCentre();
-        Path p;
-        Rectangle<float> r;
-        r.setLeft(center.getX());
-        r.setRight(center.getX());
-        r.setTop(bounds. getY());
-        r.setBottom(center.getY() - rswl->getTextHeight());
-        
-        auto textHeight = width / 8;
-        g.setFont(getFont());
-        g.setFont(textHeight);
-        auto text = rswl->getDisplayString();
-        auto strWidth = g.getCurrentFont().getStringWidth(text);
-        r.setSize(strWidth, textHeight);
-        r.setCentre(bounds.getCentreX(), bounds.getCentreY() + textHeight * 0.75);
-        g.setColour (Colours::black);
-        g.drawFittedText(text, r.toNearestInt(), juce::Justification::centred, 1);
-    }
+    auto bounds = Rectangle<int> (x, y, width, height).toFloat().reduced(0, 10);
 
     auto radius = jmin (bounds.getWidth(), bounds.getHeight() * 2) / 2.0f;
     auto toAngle = rotaryStartAngle + sliderPosProportional * (rotaryEndAngle - rotaryStartAngle);
@@ -58,8 +34,9 @@ void PurristLookAndFeel::drawRotarySlider(juce::Graphics & g,
     auto arcRadius = radius - lineW * 0.5f;
 
     Path backgroundArc;
+    int centreY = bounds.getBottom() - 2;
     backgroundArc.addCentredArc (bounds.getCentreX(),
-                                 bounds.getBottom(),
+                                 centreY,
                                  arcRadius,
                                  arcRadius,
                                  0.0f,
@@ -74,7 +51,7 @@ void PurristLookAndFeel::drawRotarySlider(juce::Graphics & g,
     {
         Path valueArc;
         valueArc.addCentredArc (bounds.getCentreX(),
-                                bounds.getBottom(),
+                                centreY,
                                 arcRadius,
                                 arcRadius,
                                 0.0f,
@@ -88,7 +65,7 @@ void PurristLookAndFeel::drawRotarySlider(juce::Graphics & g,
 
     auto thumbWidth = lineW * 2.0f;
     Point<float> thumbPoint (bounds.getCentreX() + arcRadius * std::cos (toAngle - MathConstants<float>::halfPi),
-                             bounds.getBottom() + arcRadius * std::sin (toAngle - MathConstants<float>::halfPi));
+                             centreY + arcRadius * std::sin (toAngle - MathConstants<float>::halfPi));
 
     g.setColour (slider.findColour (Slider::thumbColourId));
     
@@ -96,56 +73,61 @@ void PurristLookAndFeel::drawRotarySlider(juce::Graphics & g,
     g.setColour (fill);
     g.drawEllipse(Rectangle<float> (thumbWidth, thumbWidth).withCentre (thumbPoint), 6);
 }
+
+juce::Rectangle<int> RotarySliderWithLabels::calculateBounds(juce::Rectangle<int> inputBounds)
+{
+    auto height = inputBounds.getWidth() / 2 + 10;
+    juce::Rectangle<int> sliderBounds;
+    sliderBounds.setSize(inputBounds.getWidth(), height);
+    sliderBounds.setCentre(inputBounds.getCentreX(), 0);
+    sliderBounds.setY(inputBounds.getY());
+    
+    return sliderBounds;
+}
+
+juce::Slider& RotarySliderWithLabels::getSlider()
+{
+    return slider;
+}
+
 void RotarySliderWithLabels::paint(juce::Graphics &g)
 {
     using namespace juce;
-    
-    auto startAngle = degreesToRadians(270.f);
-    auto endAngle = degreesToRadians(90.f) + MathConstants<float>::twoPi;
-    auto range = getRange();
-    auto sliderBounds = getSliderBounds();
+
     auto area = getLocalBounds();
-    area.removeFromTop(sliderBounds.getHeight());
+    auto sliderBounds = calculateBounds(area);
     
-    auto textHeight = 21;
-    auto labelArea = area.removeFromTop(textHeight);
+    auto labelHeight = 21;
+    
+    area.removeFromTop(sliderBounds.getHeight());
+    auto labelArea = area.removeFromTop(labelHeight);
     
     g.setFont(getMediumFont());
-    g.setFont(textHeight);
+    g.setFont(labelHeight);
     g.setColour (Colours::black);
     g.drawFittedText(label, labelArea, juce::Justification::centred, 1);
     
-//    g.setColour(juce::Colours::red);
-//    g.drawRect(getLocalBounds());
+    auto textHeight = sliderBounds.getWidth() / 8;
+    auto center = sliderBounds.getCentre();
     
+    Path p;
+    Rectangle<float> r;
+    r.setLeft(center.getX());
+    r.setRight(center.getX());
+    r.setTop(sliderBounds.getY() - 5);
+    r.setBottom(center.getY() - textHeight - 5);
     
-    getLookAndFeel().drawRotarySlider(g,
-                                sliderBounds.getX(),
-                                sliderBounds.getY(),
-                                sliderBounds.getWidth(),
-                                sliderBounds.getHeight(),
-                                jmap(getValue(),
-                                     range.getStart(),
-                                     range.getEnd(), 0.0, 1.0),
-                                startAngle,
-                                endAngle,
-                                *this);
-}
-
-juce::Rectangle<int> RotarySliderWithLabels::getSliderBounds() const
-{
-    auto bounds = getLocalBounds();
-    auto size = bounds.getWidth() / 2;
-    auto textFieldHeight = getLabelTextHeight() * 1.5;
-    if (bounds.getHeight() - textFieldHeight < size) {
-        size = bounds.getHeight() - textFieldHeight;
-    }
-    juce::Rectangle<int> r;
-    r.setSize(size * 2, size);
-    r.setCentre(bounds.getCentreX(), 0);
-    r.setY(2);
+    g.setFont(getFont());
+    g.setFont(textHeight);
+    auto text = getDisplayString();
+    auto strWidth = g.getCurrentFont().getStringWidth(text);
+    r.setSize(strWidth, textHeight);
+    r.setCentre(sliderBounds.getCentreX(), sliderBounds.getCentreY() + textHeight * 0.75);
+    g.setColour (Colours::black);
+    g.drawFittedText(text, r.toNearestInt(), juce::Justification::centred, 1);
     
-    return r;
+    slider.setBounds(sliderBounds);
+    addAndMakeVisible(slider);
 }
 
 juce::String RotarySliderWithLabels::getDisplayString() const
@@ -157,7 +139,7 @@ juce::String RotarySliderWithLabels::getDisplayString() const
     bool addK = false;
     if (auto* floatParam = dynamic_cast<juce::AudioParameterFloat*>(param))
     {
-        float val = getValue();
+        float val = slider.getValue();
         if( val >= 1000.f)
         {
             val /= 1000.f;
@@ -198,7 +180,7 @@ void RMSSlider::paint(juce::Graphics &g)
     
     auto bounds = getLocalBounds();
     auto range = getRange();
-    int thumbRadius = lnf.getSliderThumbRadius(*this);
+    int thumbRadius = getLookAndFeel().getSliderThumbRadius(*this);
     auto textHeight = 21;
     int trackWidth = isHorizontal() ? 32 : 44;
     double start = isHorizontal() ?
@@ -417,15 +399,25 @@ void PurristLookAndFeel::drawButtonBackground (juce::Graphics& g,
     }
 }
 
-void PurristLookAndFeel::drawButtonText (juce::Graphics& g, juce::TextButton& button,
+juce::Font PurristLookAndFeel::getTextButtonFont (juce::TextButton&, int buttonHeight)
+{
+    return 18;
+}
+
+juce::Font PurristLookAndFeel::getTextButtonFont ()
+{
+    return getFont();
+}
+
+void PurristLookAndFeelShared::drawButtonText (juce::Graphics& g, juce::TextButton& button,
                                      bool /*shouldDrawButtonAsHighlighted*/, bool /*shouldDrawButtonAsDown*/)
 {
     using namespace juce;
     
-    int fontSize = 18;
+    Font fontSize = getTextButtonFont (button, button.getHeight());
     
-    g.setFont (getFont());
-    g.setFont(fontSize);
+    g.setFont (getTextButtonFont());
+    g.setFont(fontSize.getHeight());
     g.setColour (button.findColour (button.getToggleState() ? TextButton::textColourOnId
                                                             : TextButton::textColourOffId)
                        .withMultipliedAlpha (button.isEnabled() ? 1.0f : 0.5f));
@@ -433,7 +425,7 @@ void PurristLookAndFeel::drawButtonText (juce::Graphics& g, juce::TextButton& bu
     const int yIndent = jmin (4, button.proportionOfHeight (0.3f));
     const int cornerSize = jmin (button.getHeight(), button.getWidth()) / 2;
 
-    const int fontHeight = roundToInt (fontSize * 0.6f);
+    const int fontHeight = roundToInt (fontSize.getHeight() * 0.6f);
     const int leftIndent  = jmin (fontHeight, 2 + cornerSize / (button.isConnectedOnLeft() ? 4 : 2));
     const int rightIndent = jmin (fontHeight, 2 + cornerSize / (button.isConnectedOnRight() ? 4 : 2));
     const int textWidth = button.getWidth() - leftIndent - rightIndent;
@@ -493,4 +485,16 @@ void PurristLookAndFeel::drawToggleButton (juce::Graphics& g, juce::ToggleButton
 //                      button.getLocalBounds().withTrimmedLeft (roundToInt (tickWidth) + 10)
 //                                             .withTrimmedRight (2),
 //                      Justification::centredLeft, 10);
+}
+
+JUCE_IMPLEMENT_SINGLETON (PurristHelpButtonLNF);
+
+juce::Font PurristHelpButtonLNF::getTextButtonFont (juce::TextButton&, int buttonHeight)
+{
+    return 22;
+}
+
+juce::Font PurristHelpButtonLNF::getTextButtonFont ()
+{
+    return getMediumFont();
 }

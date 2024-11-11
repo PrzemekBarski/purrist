@@ -32,6 +32,9 @@ class SectionComponent   : public juce::Component
 {
 public:
     SectionComponent(PurristAudioProcessor& p) : audioProcessor (p) {
+        PurristLookAndFeel* lnf = PurristLookAndFeel::getInstance();
+        
+        setLookAndFeel(lnf);
         addAndMakeVisible(onButton);
     }
 
@@ -86,7 +89,6 @@ public:
     
     virtual std::vector<juce::Component*> getComponents()
     {
-        DBG("parent getComponents");
         return {};
     }
     
@@ -116,7 +118,7 @@ public:
                         "Threshold",
                         p.chain[0].get<ChainPositions::buzzGate>()),
     thresholdSliderAttachment(audioProcessor.apvts, "buzz_threshold", thresholdSlider),
-    ratioSliderAttachment(audioProcessor.apvts, "buzz_ratio", ratioSlider),
+    ratioSliderAttachment(audioProcessor.apvts, "buzz_ratio", ratioSlider.getSlider()),
     freqButtonAttachment(audioProcessor.apvts, "buzz_frequency", freqButton[1]),
     onButtonAttachment(audioProcessor.apvts, "buzz_on", onButton)
     {
@@ -140,6 +142,7 @@ public:
         for (auto* component : getComponents()) {
             addAndMakeVisible(component);
         }
+        
         title = "Buzz";
     }
     
@@ -171,8 +174,8 @@ public:
                         "Threshold",
                         p.chain[0].get<ChainPositions::hissGate>()),
     thresholdSliderAttachment(audioProcessor.apvts, "hiss_threshold", thresholdSlider),
-    ratioSliderAttachment(audioProcessor.apvts, "hiss_ratio", ratioSlider),
-    cutoffSliderAttachment(audioProcessor.apvts, "hiss_cutoff", cutoffSlider),
+    ratioSliderAttachment(audioProcessor.apvts, "hiss_ratio", ratioSlider.getSlider()),
+    cutoffSliderAttachment(audioProcessor.apvts, "hiss_cutoff", cutoffSlider.getSlider()),
     onButtonAttachment(audioProcessor.apvts, "hiss_on", onButton)
     {
         for (auto* component : getComponents()) {
@@ -210,8 +213,8 @@ public:
                         "Threshold",
                         p.chain[0].get<ChainPositions::noiseGate>()),
     thresholdSliderAttachment(audioProcessor.apvts, "noise_threshold", thresholdSlider),
-    ratioSliderAttachment(audioProcessor.apvts, "noise_ratio", ratioSlider),
-    releaseSliderAttachment(audioProcessor.apvts, "noise_release", releaseSlider),
+    ratioSliderAttachment(audioProcessor.apvts, "noise_ratio", ratioSlider.getSlider()),
+    releaseSliderAttachment(audioProcessor.apvts, "noise_release", releaseSlider.getSlider()),
     onButtonAttachment(audioProcessor.apvts, "noise_on", onButton)
     {
         for (auto* component : getComponents()) {
@@ -255,6 +258,8 @@ private:
     // access the processor object that created it.
     
     PurristAudioProcessor& audioProcessor;
+    Component contentComponent;
+    juce::Viewport mainViewport;
     
     BuzzComponent buzzSection;
     HissComponent hissSection;
@@ -262,6 +267,8 @@ private:
     
     std::unique_ptr<juce::Drawable> logo, logoShadow, pluginIcon, pluginIconShadow;
     juce::DrawableText pluginLogo, pluginLogoShadow;
+    juce::TextButton helpButton;
+    juce::URL helpURL{"https://przemyslawbarski.pl"};
     
     juce::Rectangle<int> debugRect1, debugRect2;
 
