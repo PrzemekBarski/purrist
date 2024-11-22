@@ -47,7 +47,7 @@ public:
         
         shadow.drawForRectangle(g, bounds);
         g.setColour (juce::Colours::white);
-        g.fillRect(bounds.toFloat());
+        g.fillRect(bounds.toFloat()); 
         
         bounds.removeFromTop(sectionPaddingTop);
         bounds.removeFromRight(sectionPaddingX);
@@ -268,7 +268,7 @@ private:
     std::unique_ptr<juce::Drawable> logo, logoShadow, pluginIcon, pluginIconShadow;
     juce::DrawableText pluginLogo, pluginLogoShadow;
     juce::TextButton helpButton;
-    juce::URL helpURL{"https://przemyslawbarski.pl"};
+    juce::URL helpURL{"https://straycataudio.netlify.app/purrist/user-manual/"};
     
     juce::Rectangle<int> debugRect1, debugRect2;
 

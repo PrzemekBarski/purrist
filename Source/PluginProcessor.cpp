@@ -125,13 +125,13 @@ void PurristAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBloc
     updateParameters();
     
     for (int channel = 0; channel < 2; channel++) {
-        chain[channel].get<ChainPositions::buzzGate>().setAttack(5);
+        chain[channel].get<ChainPositions::buzzGate>().setAttack(50);
         chain[channel].get<ChainPositions::buzzGate>().setRelease(150);
         
         chain[channel].get<ChainPositions::hissGate>().setAttack(50);
         chain[channel].get<ChainPositions::hissGate>().setRelease(300);
         
-        chain[channel].get<ChainPositions::noiseGate>().setAttack(5);
+        chain[channel].get<ChainPositions::noiseGate>().setAttack(30);
         
         chain[channel].prepare(spec);
     }
@@ -274,7 +274,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout PurristAudioProcessor::creat
         std::make_unique<juce::AudioParameterFloat>(
             juce::ParameterID("buzz_ratio", 1),
             "Buzz Ratio",
-            juce::NormalisableRange<float>(1.5f, 4.f, 0.01f, 0.55f),
+            juce::NormalisableRange<float>(1.2f, 4.f, 0.01f, 0.55f),
             2.f
         )
     );
@@ -313,7 +313,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout PurristAudioProcessor::creat
         std::make_unique<juce::AudioParameterFloat>(
             juce::ParameterID("hiss_ratio", 1),
             "Fizz Ratio",
-            juce::NormalisableRange<float>(1.5f, 4.f, 0.01f, 0.55f),
+            juce::NormalisableRange<float>(1.2f, 4.f, 0.01f, 0.55f),
             2.f
         )
     );
@@ -348,7 +348,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout PurristAudioProcessor::creat
         std::make_unique<juce::AudioParameterFloat>(
             juce::ParameterID("noise_ratio", 1),
             "Noise Ratio",
-            juce::NormalisableRange<float>(1.5f, 4.f, 0.01f, 0.55f),
+            juce::NormalisableRange<float>(1.5f, 8.f, 0.01f, 0.55f),
             3.f
         )
     );
