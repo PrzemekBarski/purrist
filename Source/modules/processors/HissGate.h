@@ -3,7 +3,7 @@
 
     HissGate.h
     Created: 12 Feb 2024 5:14:06pm
-    Author:  Przemysław Barski
+    Author:  Przemysław Barski (modified juce::NoiseGate)
 
   ==============================================================================
 */
@@ -13,8 +13,10 @@
 #include <JuceHeader.h>
 #include "RMSMeters.h"
 
+// TODO: Make a parent Gate class
 //==============================================================================
 /*
+    A dynamic shelving filter that cuts high frequency and reports attenuation depth
 */
 template <typename SampleType>
 class HissGate  :  public RMSMeters<SampleType>

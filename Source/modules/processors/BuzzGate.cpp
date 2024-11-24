@@ -3,7 +3,7 @@
 
     BuzzGate.cpp
     Created: 3 Feb 2024 11:42:29pm
-    Author:  Przemysław Barski
+    Author:  Przemysław Barski (modified juce::NoiseGate)
 
   ==============================================================================
 */

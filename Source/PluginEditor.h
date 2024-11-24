@@ -21,20 +21,34 @@
 using Attachment = juce::AudioProcessorValueTreeState::SliderAttachment;
 using ButtonAttachment = juce::AudioProcessorValueTreeState::ButtonAttachment;
 
+//==============================================================================
+/** Returns the heading / title font
+*/
 static const juce::Font getDisplayFont()
 {
     using namespace juce;
     static auto typeface = Typeface::createSystemTypefaceFor (BinaryData::RighteousRegular_ttf, BinaryData::RighteousRegular_ttfSize);
-    return Font (typeface);
+    return Font (typeface); // TODO: update with FontOptions constructor
 }
 
+//==============================================================================
+/**
+    A class for plugin section card, including the title and on / off button
+*/
 class SectionComponent   : public juce::Component
 {
 public:
+    //==============================================================================
+    /**
+        @param p    Audio processor to use in the section
+    */
     SectionComponent(PurristAudioProcessor& p) : audioProcessor (p) {
+        PurristLookAndFeel* lnf = PurristLookAndFeel::getInstance();
+        
+        setLookAndFeel(lnf);
         addAndMakeVisible(onButton);
     }
-
+    
     void paint (juce::Graphics& g) override {
         
         auto bounds = getLocalBounds();
@@ -44,7 +58,7 @@ public:
         
         shadow.drawForRectangle(g, bounds);
         g.setColour (juce::Colours::white);
-        g.fillRect(bounds.toFloat());
+        g.fillRect(bounds.toFloat()); 
         
         bounds.removeFromTop(sectionPaddingTop);
         bounds.removeFromRight(sectionPaddingX);
@@ -53,11 +67,9 @@ public:
         
         auto titleField = bounds.removeFromTop(titleSize * 1.15f);
         
+        // Title underline
         g.setColour (juce::Colours::black);
         g.fillRect(bounds.removeFromTop(2));
-        
-//        g.setColour(juce::Colours::red);
-//        g.drawRect(titleField);
         
         onButton.setBounds(titleField.removeFromRight(titleSize));
         
@@ -69,6 +81,9 @@ public:
         paintSection(g);
     }
     
+    //==============================================================================
+    /** Returns the editable section area rectangle
+    */
     juce::Rectangle<int> getSectionArea()
     {
         auto area = getLocalBounds();
@@ -84,9 +99,11 @@ public:
         return area;
     }
     
+    //==============================================================================
+    /** Returns all child components to add to the section and make visible
+    */
     virtual std::vector<juce::Component*> getComponents()
     {
-        DBG("parent getComponents");
         return {};
     }
     
@@ -99,11 +116,19 @@ private:
     int shadowOffset = 5, sectionPaddingX = 24, sectionPaddingBottom= 32, sectionPaddingTop = 16, titleSize = 32;
     juce::DropShadow shadow = juce::DropShadow(juce::Colours::black, 1, juce::Point<int>(shadowOffset, shadowOffset));
     
+    /** A method to paint the editable content of the section
+
+        @param g    the graphics context that must be used to do the drawing operations.
+    */
     virtual void paintSection(juce::Graphics& g) {};
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SectionComponent)
 };
 
+//==============================================================================
+/**
+    A class for the Buzz section of the plugin
+*/
 class BuzzComponent   : public SectionComponent
 {
 public:
@@ -116,7 +141,7 @@ public:
                         "Threshold",
                         p.chain[0].get<ChainPositions::buzzGate>()),
     thresholdSliderAttachment(audioProcessor.apvts, "buzz_threshold", thresholdSlider),
-    ratioSliderAttachment(audioProcessor.apvts, "buzz_ratio", ratioSlider),
+    ratioSliderAttachment(audioProcessor.apvts, "buzz_ratio", ratioSlider.getSlider()),
     freqButtonAttachment(audioProcessor.apvts, "buzz_frequency", freqButton[1]),
     onButtonAttachment(audioProcessor.apvts, "buzz_on", onButton)
     {
@@ -126,8 +151,6 @@ public:
         
         freqButton[1].setButtonText("60 Hz");
         freqButton[1].setConnectedEdges(juce::TextButton::ConnectedOnLeft);
-        
-        DBG(freqOption);
         
         for (int i = 0; i < 2; i++) {
             freqButton[i].setRadioGroupId (10);
@@ -140,6 +163,7 @@ public:
         for (auto* component : getComponents()) {
             addAndMakeVisible(component);
         }
+        
         title = "Buzz";
     }
     
@@ -159,6 +183,10 @@ private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (BuzzComponent)
 };
 
+//==============================================================================
+/**
+    A class for the Hiss section of the plugin
+*/
 class HissComponent   : public SectionComponent
 {
 public:
@@ -171,8 +199,8 @@ public:
                         "Threshold",
                         p.chain[0].get<ChainPositions::hissGate>()),
     thresholdSliderAttachment(audioProcessor.apvts, "hiss_threshold", thresholdSlider),
-    ratioSliderAttachment(audioProcessor.apvts, "hiss_ratio", ratioSlider),
-    cutoffSliderAttachment(audioProcessor.apvts, "hiss_cutoff", cutoffSlider),
+    ratioSliderAttachment(audioProcessor.apvts, "hiss_ratio", ratioSlider.getSlider()),
+    cutoffSliderAttachment(audioProcessor.apvts, "hiss_cutoff", cutoffSlider.getSlider()),
     onButtonAttachment(audioProcessor.apvts, "hiss_on", onButton)
     {
         for (auto* component : getComponents()) {
@@ -197,6 +225,10 @@ private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (HissComponent)
 };
 
+//==============================================================================
+/**
+    A class for the Noise section of the plugin
+*/
 class NoiseComponent   : public SectionComponent
 {
 public:
@@ -210,8 +242,8 @@ public:
                         "Threshold",
                         p.chain[0].get<ChainPositions::noiseGate>()),
     thresholdSliderAttachment(audioProcessor.apvts, "noise_threshold", thresholdSlider),
-    ratioSliderAttachment(audioProcessor.apvts, "noise_ratio", ratioSlider),
-    releaseSliderAttachment(audioProcessor.apvts, "noise_release", releaseSlider),
+    ratioSliderAttachment(audioProcessor.apvts, "noise_ratio", ratioSlider.getSlider()),
+    releaseSliderAttachment(audioProcessor.apvts, "noise_release", releaseSlider.getSlider()),
     onButtonAttachment(audioProcessor.apvts, "noise_on", onButton)
     {
         for (auto* component : getComponents()) {
@@ -224,6 +256,7 @@ public:
     std::vector<juce::Component*> getComponents() override;
 private:
     void paintSection(juce::Graphics& g) override {};
+    
     juce::dsp::IIR::Filter<float> filter;
     
     GainReductionMeter gainReductionMeter;
@@ -238,23 +271,25 @@ private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (NoiseComponent)
 };
 
+//==============================================================================
+/**
+    A class for the plugin editor
+*/
 class PurristAudioProcessorEditor  : public juce::AudioProcessorEditor
 {
 public:
     PurristAudioProcessorEditor (PurristAudioProcessor&);
     ~PurristAudioProcessorEditor() override;
 
-    //==============================================================================
     void paint (juce::Graphics&) override;
     void resized() override;
     
     juce::Atomic<bool> filterChanged { false };
 
 private:
-    // This reference is provided as a quick way for your editor to
-    // access the processor object that created it.
-    
     PurristAudioProcessor& audioProcessor;
+    Component contentComponent;
+    juce::Viewport mainViewport;
     
     BuzzComponent buzzSection;
     HissComponent hissSection;
@@ -262,6 +297,8 @@ private:
     
     std::unique_ptr<juce::Drawable> logo, logoShadow, pluginIcon, pluginIconShadow;
     juce::DrawableText pluginLogo, pluginLogoShadow;
+    juce::TextButton helpButton;
+    juce::URL helpURL{"https://straycataudio.netlify.app/purrist/user-manual/"};
     
     juce::Rectangle<int> debugRect1, debugRect2;
 

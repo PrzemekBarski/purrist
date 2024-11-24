@@ -13,6 +13,9 @@ PurristAudioProcessorEditor::PurristAudioProcessorEditor (PurristAudioProcessor&
     : AudioProcessorEditor (&p), audioProcessor (p), buzzSection(p), hissSection(p), noiseSection(p)
 {
     PurristLookAndFeel* lnf = PurristLookAndFeel::getInstance();
+    PurristHelpButtonLNF* hlnf = PurristHelpButtonLNF::getInstance();
+    
+    setLookAndFeel(hlnf);
     
     lnf->setColour (juce::Slider::thumbColourId, juce::Colours::white);
     lnf->setColour (juce::Slider::rotarySliderFillColourId, juce::Colours::black);
@@ -23,7 +26,9 @@ PurristAudioProcessorEditor::PurristAudioProcessorEditor (PurristAudioProcessor&
     lnf->setColour (juce::TextButton::buttonColourId,   juce::Colours::white);
     lnf->setColour (juce::TextButton::buttonOnColourId, juce::Colours::black);
     
-    juce::LookAndFeel::setDefaultLookAndFeel(lnf);
+    hlnf->setColour (juce::TextButton::textColourOffId,  juce::Colours::black);
+    hlnf->setColour (juce::TextButton::buttonColourId,   juce::Colours::white);
+    hlnf->setColour (juce::ComboBox::outlineColourId,    juce::Colours::black);
     
     logoShadow = juce::Drawable::createFromImageData (BinaryData::straycat_svg, BinaryData::straycat_svgSize);
     logo = juce::Drawable::createFromImageData (BinaryData::straycatwhite_svg, BinaryData::straycatwhite_svgSize);
@@ -43,55 +48,85 @@ PurristAudioProcessorEditor::PurristAudioProcessorEditor (PurristAudioProcessor&
     pluginLogoShadow.setJustification(juce::Justification::bottomLeft);
     pluginLogoShadow.setFontHeight(82);
     
-    addAndMakeVisible(pluginIconShadow.get());
-    addAndMakeVisible(logoShadow.get());
-    addAndMakeVisible(logo.get());
-    addAndMakeVisible(pluginLogoShadow);
-    addAndMakeVisible(pluginLogo);
-    addAndMakeVisible (buzzSection);
-    addAndMakeVisible (hissSection);
-    addAndMakeVisible (noiseSection);
-    addAndMakeVisible(pluginIcon.get());
+    helpButton.setButtonText("?");
+    helpButton.onClick = [this] { helpURL.launchInDefaultBrowser(); };
+    
+    mainViewport.setViewedComponent(&contentComponent, false);
+    addAndMakeVisible(mainViewport);
+    
+    contentComponent.addAndMakeVisible(pluginIconShadow.get());
+    contentComponent.addAndMakeVisible(logoShadow.get());
+    contentComponent.addAndMakeVisible(logo.get());
+    contentComponent.addAndMakeVisible(helpButton);
+    contentComponent.addAndMakeVisible(pluginLogoShadow);
+    contentComponent.addAndMakeVisible(pluginLogo);
+    contentComponent.addAndMakeVisible (buzzSection);
+    contentComponent.addAndMakeVisible (hissSection);
+    contentComponent.addAndMakeVisible (noiseSection);
+    contentComponent.addAndMakeVisible(pluginIcon.get());
     setResizable (true, true);
-    setResizeLimits(920, 540, 9999, 9999);
-    setSize (1024, 540);
+    setResizeLimits(200, 100, 9999, 9999);
+    setSize (1024, 620);
 }
 
-PurristAudioProcessorEditor::~PurristAudioProcessorEditor(){}
+PurristAudioProcessorEditor::~PurristAudioProcessorEditor()
+{
+    setLookAndFeel(nullptr);
+}
 
 //==============================================================================
 
 void PurristAudioProcessorEditor::paint (juce::Graphics& g)
 {
     g.fillAll (juce::Colour(79, 85, 117));
-    
-    g.setColour(juce::Colours::red);
-    g.drawRect(debugRect1);
-    
-    g.setColour(juce::Colours::green);
-    g.drawRect(debugRect2);
 }
 
 void PurristAudioProcessorEditor::resized()
 {
+    using namespace juce;
+    
     auto area = getLocalBounds();
     
-    int maxHeight = 480;
-    int maxWidth = 1024;
+    mainViewport.setBounds(area);
+    
+    int maxHeight = 540;
+    int maxWidth = 980;
+    int minHeight = 600;
+    int minWidth = 920;
+    
+    if (mainViewport.isVerticalScrollBarShown())
+    {
+        area.setWidth(area.getWidth() - mainViewport.getScrollBarThickness());
+    }
+    
+    if (mainViewport.isHorizontalScrollBarShown())
+    {
+        area.setHeight(area.getHeight() - mainViewport.getScrollBarThickness());
+    }
+    
+    if (area.getWidth() < minWidth)
+    {
+        area.setWidth(minWidth);
+    }
+    
+    if (area.getHeight() < minHeight)
+    {
+        area.setHeight(minHeight);
+    }
+    
+    contentComponent.setBounds(area);
+    
     int paddingY = (area.getHeight() - maxHeight) / 2;
     int paddingX = juce::jmax((area.getWidth() - maxWidth) / 2, 20);
     
-    area.removeFromTop(paddingY);
-    area.removeFromRight(paddingX);
-    area.removeFromBottom(paddingY);
-    area.removeFromLeft(paddingX);
+    area.reduce(paddingX, paddingY);
     
-    using namespace juce;
-    
+    /*--------------------------------------*/
+    /*------------ Company Logo ------------*/
     /*--------------------------------------*/
 
     auto header = area.removeFromTop(24);
-    auto logoShadowArea = header.removeFromRight(300);
+    auto logoShadowArea = header.removeFromRight(130);
     logoShadowArea = logoShadowArea.withY(logoShadowArea.getY() + 5);
     auto logoArea = logoShadowArea.withPosition(logoShadowArea.getX() - 5, logoShadowArea.getY() - 5);
     
@@ -101,11 +136,22 @@ void PurristAudioProcessorEditor::resized()
     logo->setTransformToFit(logoArea.toFloat(), logoPlacement);
     
     /*--------------------------------------*/
+    /*------------- Help Button ------------*/
+    /*--------------------------------------*/
+    
+    auto helpButtonArea = header.removeFromRight(30);
+    helpButton.setBounds(helpButtonArea);
+    
+    header.removeFromRight(170);
+    
+    /*--------------------------------------*/
+    /*------------- Plugin Logo ------------*/
+    /*--------------------------------------*/
     
     auto pluginLogoHeight = header.getHeight() * 1.75f;
     auto pluginLogoOffset = header.getHeight() * 0.4f;
     
-    auto pluginLogoArea = header.removeFromLeft(300).toFloat();
+    auto pluginLogoArea = header.removeFromLeft(330).toFloat();
     pluginLogoArea = pluginLogoArea.withHeight(pluginLogoHeight)
         .withY(pluginLogoArea.getY() - pluginLogoOffset);
     auto pluginLogoShadowArea = pluginLogoArea.withPosition(pluginLogoArea.getX() + 5, pluginLogoArea.getY() + 5);
@@ -114,7 +160,10 @@ void PurristAudioProcessorEditor::resized()
     pluginLogo.setBoundingBox(Parallelogram<float>(pluginLogoArea));
     
     /*--------------------------------------*/
+    /*------------ Captain Purr ------------*/
+    /*--------------------------------------*/
     
+    // Expand icon area both on top and bottom
     auto pluginIconArea = header.withBottom(header.getBottom() + 40).withTop(header.getY() - 10);
     auto pluginIconShadowArea = pluginIconArea.withPosition(pluginIconArea.getX() + 5, pluginIconArea.getY() + 5);
     
@@ -123,8 +172,13 @@ void PurristAudioProcessorEditor::resized()
     pluginIcon->setTransformToFit(pluginIconArea.toFloat(), pluginIconPlacement);
     pluginIconShadow->setTransformToFit(pluginIconShadowArea.toFloat(), pluginIconPlacement);
     
+    /*--------------------------------------*/
+    /*---------- Plugin Sections -----------*/
+    /*--------------------------------------*/
+    
     area.removeFromTop(16);
     
+    // 13 columns grid
     auto gap = 6;
     auto narrowSectionWidth = area.getWidth() * 4 / 13 - gap * 2 / 3;
     auto wideSectionWidth = area.getWidth() * 5 / 13 - gap * 2 / 3;
@@ -145,9 +199,6 @@ void BuzzComponent::paintSection(juce::Graphics& g)
     auto area = getSectionArea();
     auto thresholdSliderBounds = area.removeFromRight(100);
     
-//    g.setColour(juce::Colours::red);
-//    g.drawRect(thresholdSliderBounds);
-    
     gainReductionMeter.setBounds(area.removeFromBottom(64));
     
     auto buttonsArea = area.removeFromBottom((area.getHeight()) / 2);
@@ -166,6 +217,7 @@ void BuzzComponent::paintSection(juce::Graphics& g)
     freqButton[1].setBounds(buttonsArea);
     
     area.removeFromBottom(24);
+    area.removeFromTop(24);
     ratioSlider.setBounds(area.withRight(area.getRight() + 8));
     
     thresholdSlider.setBounds(thresholdSliderBounds);
@@ -187,9 +239,10 @@ void HissComponent::resized()
     thresholdSlider.setBounds(area.removeFromBottom(80));
     
     area.removeFromBottom(18);
+    area.removeFromTop(24);
     
-    ratioSlider.setBounds(area.removeFromLeft(area.getWidth() / 2));
-    cutoffSlider.setBounds(area);
+    ratioSlider.setBounds(area.removeFromLeft(area.getWidth() / 2 - 6));
+    cutoffSlider.setBounds(area.removeFromRight(area.getWidth() - 12));
     
 }
 
@@ -202,7 +255,9 @@ void NoiseComponent::resized()
     
     releaseSlider.setBounds(area.removeFromBottom((area.getHeight() - 24) / 2).withRight(area.getRight() + 15));
     area.removeFromBottom(24);
-    ratioSlider.setBounds(area.withRight(area.getRight() + 15));
+    area.removeFromTop(24);
+    
+    ratioSlider.setBounds(area.withRight(area.getRight() + 8));
     
     thresholdSlider.setBounds(thresholdSliderBounds);
 }
