@@ -21,23 +21,34 @@
 using Attachment = juce::AudioProcessorValueTreeState::SliderAttachment;
 using ButtonAttachment = juce::AudioProcessorValueTreeState::ButtonAttachment;
 
+//==============================================================================
+/** Returns the heading / title font
+*/
 static const juce::Font getDisplayFont()
 {
     using namespace juce;
     static auto typeface = Typeface::createSystemTypefaceFor (BinaryData::RighteousRegular_ttf, BinaryData::RighteousRegular_ttfSize);
-    return Font (typeface);
+    return Font (typeface); // TODO: update with FontOptions constructor
 }
 
+//==============================================================================
+/**
+    A class for plugin section card, including the title and on / off button
+*/
 class SectionComponent   : public juce::Component
 {
 public:
+    //==============================================================================
+    /**
+        @param p    Audio processor to use in the section
+    */
     SectionComponent(PurristAudioProcessor& p) : audioProcessor (p) {
         PurristLookAndFeel* lnf = PurristLookAndFeel::getInstance();
         
         setLookAndFeel(lnf);
         addAndMakeVisible(onButton);
     }
-
+    
     void paint (juce::Graphics& g) override {
         
         auto bounds = getLocalBounds();
@@ -56,11 +67,9 @@ public:
         
         auto titleField = bounds.removeFromTop(titleSize * 1.15f);
         
+        // Title underline
         g.setColour (juce::Colours::black);
         g.fillRect(bounds.removeFromTop(2));
-        
-//        g.setColour(juce::Colours::red);
-//        g.drawRect(titleField);
         
         onButton.setBounds(titleField.removeFromRight(titleSize));
         
@@ -72,6 +81,9 @@ public:
         paintSection(g);
     }
     
+    //==============================================================================
+    /** Returns the editable section area rectangle
+    */
     juce::Rectangle<int> getSectionArea()
     {
         auto area = getLocalBounds();
@@ -87,6 +99,9 @@ public:
         return area;
     }
     
+    //==============================================================================
+    /** Returns all child components to add to the section and make visible
+    */
     virtual std::vector<juce::Component*> getComponents()
     {
         return {};
@@ -101,11 +116,19 @@ private:
     int shadowOffset = 5, sectionPaddingX = 24, sectionPaddingBottom= 32, sectionPaddingTop = 16, titleSize = 32;
     juce::DropShadow shadow = juce::DropShadow(juce::Colours::black, 1, juce::Point<int>(shadowOffset, shadowOffset));
     
+    /** A method to paint the editable content of the section
+
+        @param g    the graphics context that must be used to do the drawing operations.
+    */
     virtual void paintSection(juce::Graphics& g) {};
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SectionComponent)
 };
 
+//==============================================================================
+/**
+    A class for the Buzz section of the plugin
+*/
 class BuzzComponent   : public SectionComponent
 {
 public:
@@ -128,8 +151,6 @@ public:
         
         freqButton[1].setButtonText("60 Hz");
         freqButton[1].setConnectedEdges(juce::TextButton::ConnectedOnLeft);
-        
-        DBG(freqOption);
         
         for (int i = 0; i < 2; i++) {
             freqButton[i].setRadioGroupId (10);
@@ -162,6 +183,10 @@ private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (BuzzComponent)
 };
 
+//==============================================================================
+/**
+    A class for the Hiss section of the plugin
+*/
 class HissComponent   : public SectionComponent
 {
 public:
@@ -200,6 +225,10 @@ private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (HissComponent)
 };
 
+//==============================================================================
+/**
+    A class for the Noise section of the plugin
+*/
 class NoiseComponent   : public SectionComponent
 {
 public:
@@ -227,6 +256,7 @@ public:
     std::vector<juce::Component*> getComponents() override;
 private:
     void paintSection(juce::Graphics& g) override {};
+    
     juce::dsp::IIR::Filter<float> filter;
     
     GainReductionMeter gainReductionMeter;
@@ -241,22 +271,22 @@ private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (NoiseComponent)
 };
 
+//==============================================================================
+/**
+    A class for the plugin editor
+*/
 class PurristAudioProcessorEditor  : public juce::AudioProcessorEditor
 {
 public:
     PurristAudioProcessorEditor (PurristAudioProcessor&);
     ~PurristAudioProcessorEditor() override;
 
-    //==============================================================================
     void paint (juce::Graphics&) override;
     void resized() override;
     
     juce::Atomic<bool> filterChanged { false };
 
 private:
-    // This reference is provided as a quick way for your editor to
-    // access the processor object that created it.
-    
     PurristAudioProcessor& audioProcessor;
     Component contentComponent;
     juce::Viewport mainViewport;

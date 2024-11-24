@@ -3,7 +3,7 @@
 
     HissGate.cpp
     Created: 12 Feb 2024 5:14:06pm
-    Author:  Przemysław Barski
+    Author:  Przemysław Barski (modified juce::NoiseGate)
 
   ==============================================================================
 */

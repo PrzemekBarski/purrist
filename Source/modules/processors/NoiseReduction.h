@@ -3,7 +3,7 @@
 
     NoiseReduction.h
     Created: 1 Mar 2024 8:45:17am
-    Author:  Przemysław Barski
+    Author:  Przemysław Barski (modified juce::NoiseGate)
 
   ==============================================================================
 */
@@ -13,6 +13,11 @@
 #include <JuceHeader.h>
 #include "RMSMeters.h"
 
+// TODO: Make a parent Gate class
+//==============================================================================
+/*
+    Expanding noise gate. It's a modified juce::NoiseGate so it can report the attenuation depth
+*/
 template <typename SampleType>
 class NoiseReduction  :  public RMSMeters<float>
 {

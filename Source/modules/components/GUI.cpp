@@ -120,7 +120,7 @@ void RotarySliderWithLabels::paint(juce::Graphics &g)
     g.setFont(getFont());
     g.setFont(textHeight);
     auto text = getDisplayString();
-    auto strWidth = g.getCurrentFont().getStringWidth(text);
+    auto strWidth = g.getCurrentFont().getStringWidth(text); // TODO: Use TextLayout
     r.setSize(strWidth, textHeight);
     r.setCentre(sliderBounds.getCentreX(), sliderBounds.getCentreY() + textHeight * 0.75);
     g.setColour (Colours::black);
@@ -399,6 +399,8 @@ void PurristLookAndFeel::drawButtonBackground (juce::Graphics& g,
     }
 }
 
+// TODO: Make font height dependent on button size
+// TODO: Use FontOptions
 juce::Font PurristLookAndFeel::getTextButtonFont (juce::TextButton&, int buttonHeight)
 {
     return 18;
@@ -489,6 +491,7 @@ void PurristLookAndFeel::drawToggleButton (juce::Graphics& g, juce::ToggleButton
 
 JUCE_IMPLEMENT_SINGLETON (PurristHelpButtonLNF);
 
+// TODO: Use FontOptions
 juce::Font PurristHelpButtonLNF::getTextButtonFont (juce::TextButton&, int buttonHeight)
 {
     return 22;

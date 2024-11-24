@@ -65,7 +65,6 @@ PurristAudioProcessorEditor::PurristAudioProcessorEditor (PurristAudioProcessor&
     contentComponent.addAndMakeVisible (noiseSection);
     contentComponent.addAndMakeVisible(pluginIcon.get());
     setResizable (true, true);
-    // setResizeLimits(920, 540, 9999, 9999);
     setResizeLimits(200, 100, 9999, 9999);
     setSize (1024, 620);
 }
@@ -80,16 +79,12 @@ PurristAudioProcessorEditor::~PurristAudioProcessorEditor()
 void PurristAudioProcessorEditor::paint (juce::Graphics& g)
 {
     g.fillAll (juce::Colour(79, 85, 117));
-    
-    g.setColour(juce::Colours::red);
-    g.drawRect(debugRect1);
-    
-    g.setColour(juce::Colours::green);
-    g.drawRect(debugRect2);
 }
 
 void PurristAudioProcessorEditor::resized()
 {
+    using namespace juce;
+    
     auto area = getLocalBounds();
     
     mainViewport.setBounds(area);
@@ -124,13 +119,10 @@ void PurristAudioProcessorEditor::resized()
     int paddingY = (area.getHeight() - maxHeight) / 2;
     int paddingX = juce::jmax((area.getWidth() - maxWidth) / 2, 20);
     
-    area.removeFromTop(paddingY);
-    area.removeFromRight(paddingX);
-    area.removeFromBottom(paddingY);
-    area.removeFromLeft(paddingX);
+    area.reduce(paddingX, paddingY);
     
-    using namespace juce;
-    
+    /*--------------------------------------*/
+    /*------------ Company Logo ------------*/
     /*--------------------------------------*/
 
     auto header = area.removeFromTop(24);
@@ -144,12 +136,16 @@ void PurristAudioProcessorEditor::resized()
     logo->setTransformToFit(logoArea.toFloat(), logoPlacement);
     
     /*--------------------------------------*/
+    /*------------- Help Button ------------*/
+    /*--------------------------------------*/
     
     auto helpButtonArea = header.removeFromRight(30);
     helpButton.setBounds(helpButtonArea);
     
     header.removeFromRight(170);
     
+    /*--------------------------------------*/
+    /*------------- Plugin Logo ------------*/
     /*--------------------------------------*/
     
     auto pluginLogoHeight = header.getHeight() * 1.75f;
@@ -164,7 +160,10 @@ void PurristAudioProcessorEditor::resized()
     pluginLogo.setBoundingBox(Parallelogram<float>(pluginLogoArea));
     
     /*--------------------------------------*/
+    /*------------ Captain Purr ------------*/
+    /*--------------------------------------*/
     
+    // Expand icon area both on top and bottom
     auto pluginIconArea = header.withBottom(header.getBottom() + 40).withTop(header.getY() - 10);
     auto pluginIconShadowArea = pluginIconArea.withPosition(pluginIconArea.getX() + 5, pluginIconArea.getY() + 5);
     
@@ -173,8 +172,13 @@ void PurristAudioProcessorEditor::resized()
     pluginIcon->setTransformToFit(pluginIconArea.toFloat(), pluginIconPlacement);
     pluginIconShadow->setTransformToFit(pluginIconShadowArea.toFloat(), pluginIconPlacement);
     
+    /*--------------------------------------*/
+    /*---------- Plugin Sections -----------*/
+    /*--------------------------------------*/
+    
     area.removeFromTop(16);
     
+    // 13 columns grid
     auto gap = 6;
     auto narrowSectionWidth = area.getWidth() * 4 / 13 - gap * 2 / 3;
     auto wideSectionWidth = area.getWidth() * 5 / 13 - gap * 2 / 3;
@@ -194,9 +198,6 @@ void BuzzComponent::paintSection(juce::Graphics& g)
 {
     auto area = getSectionArea();
     auto thresholdSliderBounds = area.removeFromRight(100);
-    
-//    g.setColour(juce::Colours::red);
-//    g.drawRect(thresholdSliderBounds);
     
     gainReductionMeter.setBounds(area.removeFromBottom(64));
     

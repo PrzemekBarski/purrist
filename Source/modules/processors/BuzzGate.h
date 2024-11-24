@@ -3,7 +3,7 @@
 
     BuzzGate.h
     Created: 3 Feb 2024 11:42:29pm
-    Author:  Przemysław Barski
+    Author:  Przemysław Barski (modified juce::NoiseGate)
 
   ==============================================================================
 */
@@ -13,8 +13,10 @@
 #include <JuceHeader.h>
 #include "RMSMeters.h"
 
+// TODO: Make a parent Gate class
 //==============================================================================
 /*
+    Dynamic hum canceller that reports RMS attenuation depth. It's a modified juce::NoiseGate class
 */
 template <typename SampleType>
 class BuzzGate  :  public RMSMeters<float>
